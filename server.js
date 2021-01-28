@@ -3,6 +3,7 @@ const express = require('express');
 var SpotifyWebApi = require('spotify-web-api-node');
 
 var access_token1 = "";
+const port = process.env.PORT || 5500;
 
 const scopes = [
     'user-read-playback-state',
@@ -25,7 +26,7 @@ var spotifyApi = new SpotifyWebApi({
 
 const app = express();
 app.use(express.static('public'));
-app.listen(5500, () =>
+app.listen(port, () =>
 console.log(
   'HTTP Server up. Now go to http://localhost:5500/login in your browser.'
 )
