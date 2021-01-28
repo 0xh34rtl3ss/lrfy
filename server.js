@@ -1,23 +1,24 @@
+/*
+modules initialization
+*/
 require('dotenv').config()
 const express = require('express');
 var SpotifyWebApi = require('spotify-web-api-node');
 
 var access_token1 = "";
-const port = process.env.PORT || 5500;
+const port = process.env.PORT || 5500; //allow environment to set their own port number or we assign it
 
+//what user data we want to read
 const scopes = [
-    'user-read-playback-state',
-    'user-read-currently-playing',
     'user-read-email',
     'user-read-private',
     'playlist-read-private',
     'user-library-read',
     'user-top-read',
-    'user-read-playback-position',
     'user-read-recently-played',
   ];
 
-// credentials are optional
+// client credentials 
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
@@ -25,28 +26,23 @@ var spotifyApi = new SpotifyWebApi({
   //redirectUri: 'http://localhost:5500/callback'
 });
 
+//starting express module
 const app = express();
 app.use(express.static('public'));
+
+//start listening to assigned port on line 9
 app.listen(port, () =>
 console.log(
   'HTTP Server up. Now go to http://localhost:5500/login in your browser.'
 )
 );
 
+//if the user click the button , it will go to /login , and process with spotify login
 app.get('/login', (req, res) => {
-    res.redirect(spotifyApi.createAuthorizeURL(scopes));
+    res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
   });
 
-
-  app.get('/quiz', (req, res) => {
-    console.log('quiz button clicked');
-    res.sendFile(__dirname + '/public/quiz.html');
-  });
-  
-
-
-
-  app.get('/callback', (req, res) => {
+  app.get('/callback', (req, res) => { //once it has been logged in, go to /callback
     const error = req.query.error;
     const code = req.query.code;
     const state = req.query.state;
@@ -60,14 +56,14 @@ app.get('/login', (req, res) => {
     spotifyApi
       .authorizationCodeGrant(code)
       .then(data => {
-        const access_token = data.body['access_token'];
+        const access_token = data.body['access_token']; //get access token to use for another API call
         const refresh_token = data.body['refresh_token'];
         const expires_in = data.body['expires_in'];
   
         console.log(typeof(data.body['access_token']));
         access_token1 = data.body['access_token'];
 
-        spotifyApi.setAccessToken(access_token);
+        spotifyApi.setAccessToken(access_token); //set access token
         spotifyApi.setRefreshToken(refresh_token);
   
         console.log('access_token:', access_token);
