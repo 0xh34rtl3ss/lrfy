@@ -1,0 +1,13 @@
+#button{
+    padding: 15px;
+    color: white;
+    background-color: green;
+    border-radius: 10px;;
+}
+
+#quiz{
+    padding: 15px;
+    color: white;
+    background-color: red;
+    border-radius: 10px;;
+}
