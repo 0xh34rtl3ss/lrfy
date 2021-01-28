@@ -11,3 +11,10 @@
     background-color: red;
     border-radius: 10px;;
 }
+
+.lyrics-box{
+    margin: 0 auto;
+    height: 20vh;
+    width: 50%;
+    border: 1px solid black;
+}

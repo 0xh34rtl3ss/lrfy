@@ -21,7 +21,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: 'https://ly-fy.herokuapp.com/callback'
+  //redirectUri: 'https://ly-fy.herokuapp.com/callback'
+  redirectUri: 'http://localhost:5500/callback'
 });
 
 const app = express();
@@ -76,9 +77,9 @@ app.get('/login', (req, res) => {
           `Sucessfully retreived access token. Expires in ${expires_in} s.`
         );
         console.log('Success! You can now close the window.');
-
-        res.send(data); //send JSON to browser
-  
+        
+        res.redirect('/quiz'); //change page to 'quiz'
+        
         setInterval(async () => {
           const data = await spotifyApi.refreshAccessToken();
           const access_token = data.body['access_token'];
