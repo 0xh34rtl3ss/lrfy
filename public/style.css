@@ -1,5 +1,7 @@
 
-
+body{
+    height: 90vh;
+}
 #button{
     padding: 15px;
     color: white;
@@ -22,4 +24,9 @@
     height: 20vh;
     width: 50%;
     border: 1px solid black;
+}
+
+footer{
+    margin-top: 600px;;
+    text-align: center;
 }
