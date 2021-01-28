@@ -95,10 +95,5 @@ app.get('/login', (req, res) => {
       });
   });
 
-  function doStuff() {
-    console.log("token: "+ access_token1);
- }
- setInterval(doStuff, 3000);
-
   
  
