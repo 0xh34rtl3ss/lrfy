@@ -33,7 +33,7 @@ app.use(express.static('public'));
 //start listening to assigned port on line 9
 app.listen(port, () =>
 console.log(
-  'HTTP Server up. Now go to http://localhost:5500/login in your browser.'
+  `HTTP Server up. Now go to http://localhost: ${port} on ur browser`
 )
 );
 
@@ -74,7 +74,7 @@ app.get('/login', (req, res) => {
         );
         console.log('Success! You can now close the window.');
         
-        res.redirect('/quiz'); //change page to 'quiz'
+        res.redirect('/quiz.html'); //change page to 'quiz'
         
         setInterval(async () => {
           const data = await spotifyApi.refreshAccessToken();
