@@ -22,8 +22,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: 'https://ly-fy.herokuapp.com/callback'
-  //redirectUri: 'http://localhost:5500/callback'
+  //redirectUri: 'https://ly-fy.herokuapp.com/callback'
+  redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
@@ -74,7 +74,7 @@ app.get('/login', (req, res) => {
         );
         console.log('Success! You can now close the window.');
         
-        res.redirect('/quiz.html'); //change page to 'quiz'
+        res.redirect('./quiz/quiz.html'); //change page to 'quiz'
         
         setInterval(async () => {
           const data = await spotifyApi.refreshAccessToken();
@@ -90,3 +90,6 @@ app.get('/login', (req, res) => {
         res.send(`Error getting Tokens: ${error}`);
       });
   });
+
+
+  app.get('*', function(req, res) {  res.render('error');});
