@@ -99,7 +99,7 @@ app.get('/login', (req, res) => {
 
 
     //prevent user to implicitly enter quiz without log in
-    app.get('/quiz*', function(req, res) { 
+    app.get('/quiz', function(req, res) { 
       if(loggedin==true){
       res.sendFile(__dirname + "/public/quiz/quiz.html");
       }
