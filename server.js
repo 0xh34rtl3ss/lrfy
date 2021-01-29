@@ -4,6 +4,7 @@ modules initialization
 require('dotenv').config()
 const express = require('express');
 var SpotifyWebApi = require('spotify-web-api-node');
+var loggedin = false;
 
 var access_token1 = "";
 const port = process.env.PORT || 5500; //allow environment to set their own port number or we assign it
@@ -22,8 +23,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  //redirectUri: 'https://ly-fy.herokuapp.com/callback'
-  redirectUri: 'http://localhost:5500/callback'
+  redirectUri: 'https://ly-fy.herokuapp.com/callback'
+  //redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
@@ -72,10 +73,14 @@ app.get('/login', (req, res) => {
         console.log(
           `Sucessfully retreived access token. Expires in ${expires_in} s.`
         );
+        loggedin = true;
         console.log('Success! You can now close the window.');
-        
-        res.redirect('./quiz/quiz.html'); //change page to 'quiz'
-        
+        if(loggedin==true){
+        res.redirect("/quiz*"); //change page to 'quiz'
+        }
+        else{
+          res.redirect("/"); 
+        }
         setInterval(async () => {
           const data = await spotifyApi.refreshAccessToken();
           const access_token = data.body['access_token'];
@@ -92,4 +97,18 @@ app.get('/login', (req, res) => {
   });
 
 
-  app.get('*', function(req, res) {  res.render('error');});
+
+    //prevent user to implicitly enter quiz without log in
+    app.get('/quiz*', function(req, res) { 
+      if(loggedin==true){
+      res.sendFile(__dirname + "/public/quiz/quiz.html");
+      }
+      else{
+        res.redirect("/"); 
+      }
+      });
+
+  //kalau selain dri allowable route
+  app.get('*', function(req, res) { 
+    res.sendFile(__dirname + "/public/error/error.html");
+    });
