@@ -53,7 +53,7 @@ $(document).ready(function () {
 
             result = data.replace("callback(", "");
             result = result.replace(");", "");
-            console.log(result);
+           // console.log(result);
             result = JSON.parse(result);
 
             /* FOR LYRICS */
