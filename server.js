@@ -3,6 +3,8 @@ modules initialization
 */
 require('dotenv').config()
 const express = require('express');
+var bodyParser = require('body-parser');
+const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
 var loggedin = false;
 
@@ -28,8 +30,11 @@ var spotifyApi = new SpotifyWebApi({
 });
 
 //starting express module
-const app = express();
+var app = express();
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 
 //start listening to assigned port on line 9
 app.listen(port, () =>
@@ -76,7 +81,7 @@ app.get('/login', (req, res) => {
         loggedin = true;
         console.log('Success! You can now close the window.');
         if(loggedin==true){
-        res.redirect("/quiz*"); //change page to 'quiz'
+        res.redirect("/quiz"); //change page to 'quiz'
         }
         else{
           res.redirect("/"); 
@@ -100,6 +105,7 @@ app.get('/login', (req, res) => {
 
     //prevent user to implicitly enter quiz without log in
     app.get('/quiz', function(req, res) { 
+      console.log("masuk /quiz");
       if(loggedin==true){
       res.sendFile(__dirname + "/public/quiz/quiz.html");
       }
@@ -108,7 +114,23 @@ app.get('/login', (req, res) => {
       }
       });
 
+      /*
   //kalau selain dri allowable route
   app.get('*', function(req, res) { 
     res.sendFile(__dirname + "/public/error/error.html");
     });
+*/
+    
+    app.get('/secret', function(req, res) { 
+      console.log("masuk /secret");
+      res.send(process.env.API_KEY);
+    });
+
+
+
+    app.post('/endpoint', function(req, res){
+      var obj = {};
+      console.log('body: ' + JSON.stringify(req.body));
+    });
+
+
