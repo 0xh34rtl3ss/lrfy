@@ -41,9 +41,9 @@ $(document).ready(function () {
 
     function getLyrics(){
 
-        var getsongid = `https://api.musixmatch.com/ws/1.1/track.search?format=jsonp&callback=callback&q_track=${song}&q_artist=${artist}&quorum_factor=1&apikey=${API_KEY}`;
-        var getlyrics = `https://api.musixmatch.com/ws/1.1/track.lyrics.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
-        var getsnippet = `https://api.musixmatch.com/ws/1.1/track.snippet.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
+        var getsongid = `${endpoint}track.search?format=jsonp&callback=callback&q_track=${song}&q_artist=${artist}&quorum_factor=1&apikey=${API_KEY}`;
+        var getlyrics = `${endpoint}track.lyrics.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
+        var getsnippet = `${endpoint}track.snippet.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
     
     $.ajax({
         url: getsnippet,
