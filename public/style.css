@@ -31,3 +31,10 @@ footer{
     margin-top: 600px;;
     text-align: center;
 }
+
+#imgg img{
+    border-radius: 50%;
+    border: 2px solid red;
+    height: 60px;
+    width: 60px;
+}
