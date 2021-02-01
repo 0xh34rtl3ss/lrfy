@@ -90,7 +90,7 @@ $(document).ready(function () {
         var datareceived = false;
        var xhr = $.ajax({
             type: 'GET',
-           // url: 'http://localhost:5500/secret',
+            //url: 'http://localhost:5500/secret',
             url: 'https://ly-fy.herokuapp.com/secret',
             success: function (data) {
                 console.log("GET request to server, retrieving API");

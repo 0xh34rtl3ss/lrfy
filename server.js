@@ -141,6 +141,8 @@ app.get('/data', function (req, res) {
 
   var getdata = false;
   var dataready = false;
+  var tracks=[] ;
+
 
   function timeout() {
     setTimeout(function () {
@@ -170,7 +172,7 @@ app.get('/data', function (req, res) {
       .then(function (data) {
 
         console.log('Some information about the authenticated user', data.body);
-        spotifydata.push(data.body);
+       // spotifydata.push(data.body);
         getdata = true;
         userid = data.body.id;
         console.log(userid);
@@ -194,7 +196,8 @@ app.get('/data', function (req, res) {
             offset: 1
           })
           .then(function(data) {
-            console.log(data.body);
+            console.log(JSON.stringify(data.body.items[1]));
+            spotifydata.push(data.body.items[1]);
             console.log('Done!');
           }, function(err) {
             console.log('Something went wrong!', err);
