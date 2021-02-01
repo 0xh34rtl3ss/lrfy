@@ -1,10 +1,12 @@
 $(document).ready(function () {
 
+    
     console.log("ready!");
     var API_KEY = [];
     var apiready = false;
     var dataready = false;
     var spotifydata = {};
+    var userprogress=0;
     getAPI();
     timeout();
 
@@ -84,11 +86,12 @@ $(document).ready(function () {
     }
 
     function getAPI() {
+
         var datareceived = false;
        var xhr = $.ajax({
             type: 'GET',
-            url: 'http://localhost:5500/secret',
-            //url: 'https://ly-fy.herokuapp.com/secret',
+           // url: 'http://localhost:5500/secret',
+            url: 'https://ly-fy.herokuapp.com/secret',
             success: function (data) {
                 console.log("GET request to server, retrieving API");
                 apiready = true;
@@ -98,10 +101,10 @@ $(document).ready(function () {
             }
         });
 
-        if(datareceived==true){
+    if(datareceived==true){
             console.log("aborted AJAX to webserver-api");
             xhr.abort();
-        }
+    }
 
     }
 
@@ -109,9 +112,9 @@ $(document).ready(function () {
         var receivedspotify=false;
        var abb =  $.ajax({
             type: 'GET',
-            url: 'http://localhost:5500/data',
+           // url: 'http://localhost:5500/data',
+            url: 'https://ly-fy.herokuapp.com/data',
             dataType: "json",
-            //url: 'https://ly-fy.herokuapp.com/data',
             success: function (data) {
                 console.log(data);
                 spotifydata = data;
@@ -135,30 +138,24 @@ $(document).ready(function () {
 
     }
 
-
-
 /************ END OF BACKEND */
 
 
 
-$('#submit').click(function () {
+$('#button').click(function () {
 
-    var data = {};
-    data.title = "title";
-    data.message = "message";
+    if(userprogress<10){
+        userprogress++;
+        $('#answered').text(`${userprogress} / 10`);
+    }
 
-    $.ajax({
-        type: 'POST',
-        data: JSON.stringify(data),
-        contentType: 'application/json',
-        //url: 'https://ly-fy.herokuapp.com/endpoint',
-        url: 'http://localhost:5500/endpoint',
-        success: function (data) {
-            console.log('success data sent from quiz.js ! , check ur server terminal');
-            console.log(JSON.stringify(data));
-        }
-    });
+    else{
 
+        window.location.href = '/result' ;
+
+    }
+
+    console.log(userprogress);
 });
 
 

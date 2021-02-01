@@ -6,6 +6,8 @@ const express = require('express');
 var bodyParser = require('body-parser');
 const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
+const path = require('path');
+
 var loggedin = false;
 var spotifydata = [];
 
@@ -26,8 +28,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  //redirectUri: 'https://ly-fy.herokuapp.com/callback'
-  redirectUri: 'http://localhost:5500/callback'
+  redirectUri: 'https://ly-fy.herokuapp.com/callback'
+  //redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
@@ -107,13 +109,17 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 
 //prevent user to implicitly enter quiz without log in
 app.get('/quiz', function (req, res) {
-
-  console.log("masuk /quiz");
+  console.log("masuk /quiz-g");
   res.sendFile(__dirname + "/public/quiz/quiz.html");
-
-
-
+  console.log(__dirname + "/public/quiz/quiz.html");
 });
+
+
+app.get('/result', function (req, res) {
+  console.log("masuk /result")
+  res.sendFile(__dirname + "/public/result/result.html");
+});
+
 
 /*
   //kalau selain dri allowable route
@@ -126,6 +132,8 @@ app.get('/secret', function (req, res) {
   console.log("masuk /secret");
   res.send(process.env.API_KEY);
 });
+
+
 
 
 
@@ -205,8 +213,6 @@ app.get('/data', function (req, res) {
 
 
 });
-
-
 
 
 app.post('/endpoint', function (req, res) {
