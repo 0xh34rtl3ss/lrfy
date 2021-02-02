@@ -109,6 +109,14 @@ $('#button').click(function () {
     console.log(userprogress);
 });
 
+
+
+// try using dom-to-img to create a personalised image for user. based on their own datas (name, pfp, scores)
+
+
+
+
+
 /********* END OF FRONTEND */
 
 
