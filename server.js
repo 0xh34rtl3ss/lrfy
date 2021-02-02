@@ -111,7 +111,6 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 app.get('/quiz', function (req, res) {
   console.log("masuk /quiz-g");
   res.sendFile(__dirname + "/public/quiz/quiz.html");
-  console.log(__dirname + "/public/quiz/quiz.html");
 });
 
 
@@ -128,54 +127,41 @@ app.get('/result', function (req, res) {
     });
 */
 
+
 app.get('/secret', function (req, res) {
   console.log("masuk /secret");
-  res.send(process.env.API_KEY);
-});
-
-
-
-
-
-app.get('/data', function (req, res) {
 
   var getdata = false;
-  var dataready = false;
-  var tracks=[] ;
-
+  var userid = "";
+  var imgurl = "";
 
   function timeout() {
     setTimeout(function () {
       console.log("hi");
       if (getdata == true) {
-        console.log("data saved on spotifydata:   " + spotifydata);
-        res.send(spotifydata);
+        senddata();
+        //console.log("data saved on spotifydata:   " + spotifydata);
+       // res.send(spotifydata);
+
         return;
       }
-
-
       timeout();
     }, 1000);
   }
 
+  do{
 
-  console.log("masuk /data");
   if (loggedin == true) {
-
-
-    var userid = "";
-
-
 
     // Get the authenticated user
     spotifyApi.getMe()
       .then(function (data) {
 
         console.log('Some information about the authenticated user', data.body);
-       // spotifydata.push(data.body);
-        getdata = true;
         userid = data.body.id;
+        imgurl = data.body.images[0].url;
         console.log(userid);
+        console.log(imgurl);
 
       }, function (err) {
         console.log('Something went wrong!', err);
@@ -196,8 +182,8 @@ app.get('/data', function (req, res) {
             offset: 1
           })
           .then(function(data) {
-            console.log(JSON.stringify(data.body.items[1]));
-            spotifydata.push(data.body.items[1]);
+           // console.log(JSON.stringify(data.body.items[1]));
+           // spotifydata.push(data.body.items[1]);
             console.log('Done!');
           }, function(err) {
             console.log('Something went wrong!', err);
@@ -205,19 +191,35 @@ app.get('/data', function (req, res) {
 
       });
 
+      getdata=true;
+      timeout();
 
-
-    timeout();
-
-  } else {
+  } 
+  else {
     res.redirect("/");
   }
+
+}while(getdata==false);
+
+function senddata(){
+  var data = {
+    "API": `${process.env.API_KEY}`,
+    "USER": {
+          "displayname": `${userid}`,
+          "image": `${imgurl}`
+      }
+  };
+
+
+  console.log(data);
+  res.send(data);
+}
 
 
 
 });
 
-
+//DELETE LATER
 app.post('/endpoint', function (req, res) {
   var obj = {};
   console.log('body: ' + JSON.stringify(req.body));

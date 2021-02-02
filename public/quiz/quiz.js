@@ -1,31 +1,14 @@
 $(document).ready(function () {
 
-    
+
+/************ START OF BACKEND */
     console.log("ready!");
     var API_KEY = [];
     var apiready = false;
-    var dataready = false;
     var spotifydata = {};
     var userprogress=0;
     getAPI();
-    timeout();
 
-    /** bagi masa untuk fetch API_KEY */
-    function timeout() {
-        setTimeout(function () {
-            console.log("ho");
-            if (apiready == true && dataready==false) {
-                console.log("initiate getSpotifyData()");
-                getSpotifyData();
-                dataready = true;
-            } else if (apiready == true && dataready == true) {
-                console.log("initiate getLyrics()");
-                getLyrics();
-                return;
-            }
-            timeout();
-        }, 1000);
-    }
 
     var endpoint = 'https://api.musixmatch.com/ws/1.1/';
     var track_id = '';
@@ -44,7 +27,6 @@ $(document).ready(function () {
     //find songid based on title
     function getLyrics() {
 
-        var receivedlyric = false;
         var getsongid = `${endpoint}track.search?format=jsonp&callback=callback&q_track=${song}&q_artist=${artist}&quorum_factor=1&apikey=${API_KEY}`;
         var getlyrics = `${endpoint}track.lyrics.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
         var getsnippet = `${endpoint}track.snippet.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
@@ -53,7 +35,7 @@ $(document).ready(function () {
             url: getsnippet,
             method: 'get',
             success: function (data) {
-                console.log("make ajax call to API");
+                console.log("make ajax call to Musixmatch API");
 
                 result = data.replace("callback(", "");
                 result = result.replace(");", "");
@@ -72,22 +54,19 @@ $(document).ready(function () {
                 lyrics = JSON.stringify(result.message.body.snippet.snippet_body);
                 console.log(lyrics);
                 $('#lyrics').html(lyrics);
-                receivedlyric=true;
+                gll.abort();
+                console.log("aborted AJAX to MusixMatch");
 
             }
 
         });
 
-        if(receivedlyric==true){
-            console.log("aborted AJAX to MusixMatch");
-            gll.abort();
-        }
-
     }
+
+
 
     function getAPI() {
 
-        var datareceived = false;
        var xhr = $.ajax({
             type: 'GET',
             //url: 'http://localhost:5500/secret',
@@ -95,53 +74,25 @@ $(document).ready(function () {
             success: function (data) {
                 console.log("GET request to server, retrieving API");
                 apiready = true;
-                API_KEY.push(data);
-                console.log("API received!");
-                datareceived=true;
-            }
-        });
-
-    if(datareceived==true){
-            console.log("aborted AJAX to webserver-api");
-            xhr.abort();
-    }
-
-    }
-
-    function getSpotifyData() {
-        var receivedspotify=false;
-       var abb =  $.ajax({
-            type: 'GET',
-           // url: 'http://localhost:5500/data',
-            url: 'https://ly-fy.herokuapp.com/data',
-            dataType: "json",
-            success: function (data) {
                 console.log(data);
-                spotifydata = data;
-                spotifydata.push(data);
-                console.log("GET request to server, retrieving sporify data");
-                console.log("datas:"+JSON.stringify(spotifydata[0].images[0].url));
-                receivedspotify = true;
-
-
-                $('#imgg').append(`<img src=${JSON.stringify(spotifydata[0].images[0].url)} alt="user_pic">`);
-                $('#username').text(JSON.stringify(spotifydata[0].display_name).slice(1,-1));
-                
-
+                API_KEY.push(data.API);
+                $('#imgg').append(`<img src=${data.USER.image} alt="user_pic">`);
+                $('#username').text(data.USER.displayname);
+                console.log("API received!");
+                xhr.abort();
+                console.log("aborted AJAX to webserver-api");
+                getLyrics();
             }
         });
 
-        if(receivedspotify==true){
-            console.log("aborted AJAX to webserver-spotify");
-            abb.abort();
-        }
 
     }
-
 /************ END OF BACKEND */
 
 
 
+
+/********* START OF FRONTEND */
 $('#button').click(function () {
 
     if(userprogress<10){
@@ -157,6 +108,8 @@ $('#button').click(function () {
 
     console.log(userprogress);
 });
+
+/********* END OF FRONTEND */
 
 
 
