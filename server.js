@@ -6,10 +6,12 @@ const express = require('express');
 var bodyParser = require('body-parser');
 const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
+var cookieParser = require('cookie-parser');
 const path = require('path');
 
 var loggedin = false;
 var spotifydata = [];
+var sess;
 
 var access_token1 = "";
 const port = process.env.PORT || 5500; //allow environment to set their own port number or we assign it
@@ -28,17 +30,19 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
-  //redirectUri: 'http://localhost:5500/callback'
+  //redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
+  redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
 var app = express();
 app.use(express.static('public'));
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({
-  extended: false
+  extended: true
 }));
 app.use(bodyParser.json());
+
 
 
 //start listening to assigned port on line 9
@@ -48,8 +52,34 @@ app.listen(port, () =>
   )
 );
 
+var generateRandomString = function (length) {
+	var text = '';
+	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+	for (var i = 0; i < length; i++) {
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return text;
+};
+
+function validateCookie(req,res,next){
+
+  const { cookies } = req;
+  if('session_id' in cookies){
+    console.log(`${JSON.stringify(cookies)} existed`); 
+    //if(cookies.session_id === '12345') next();
+    next();
+    //return true;
+  }
+  else{
+    res.redirect('/');
+    //return false;
+  }
+}
+
+
 //if the user click the button , it will go to /login , and process with spotify login
-app.get('/login', (req, res) => {
+app.get('/login',  (req, res) => {
   res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
 });
 
@@ -58,9 +88,15 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
   const code = req.query.code;
   const state = req.query.state;
 
+  var id = generateRandomString(16);
+  console.log("state: "+id);
+  res.cookie(`session_id`,`${id}`);
+ 
+
+
   if (error) {
     console.error('Callback Error:', error);
-    res.send(`Callback Error: ${error}`);
+    res.session.send(`Callback Error: ${error}`);
     return;
   }
 
@@ -71,8 +107,7 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
       const refresh_token = data.body['refresh_token'];
       const expires_in = data.body['expires_in'];
 
-      console.log(typeof (data.body['access_token']));
-      access_token1 = data.body['access_token'];
+      //access_token1 = data.body['access_token'];
 
       spotifyApi.setAccessToken(access_token); //set access token
       spotifyApi.setRefreshToken(refresh_token);
@@ -83,11 +118,14 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
       console.log(
         `Sucessfully retreived access token. Expires in ${expires_in} s.`
       );
-      loggedin = true;
+       loggedin = true;
       console.log('Success! You can now close the window.');
+      console.log("");
       if (loggedin == true) {
+        console.log("loggedin = true ")
         res.redirect("/quiz"); //change page to 'quiz'
       } else {
+        console.log("loggedin = false ")
         res.redirect("/");
       }
       setInterval(async () => {
@@ -103,32 +141,42 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
       console.error('Error getting Tokens:', error);
       res.send(`Error getting Tokens: ${error}`);
     });
+
+
 });
 
 
 
 //prevent user to implicitly enter quiz without log in
-app.get('/quiz', function (req, res) {
+app.get('/quiz/*', function  (req, res)  {
+
+  if(loggedin==true){
+  console.log(loggedin);
   console.log("masuk /quiz-g");
   res.sendFile(__dirname + "/public/quiz/quiz.html");
+  }
+  else{
+    res.redirect('../*');
+  }
 });
 
 
-app.get('/result', function (req, res) {
+app.get('/result', validateCookie, (req, res) => {
   console.log("masuk /result")
   res.sendFile(__dirname + "/public/result/result.html");
+  
 });
 
 
-/*
+
   //kalau selain dri allowable route
-  app.get('*', function(req, res) { 
+  app.get('*', function (req, res) { 
     res.sendFile(__dirname + "/public/error/error.html");
     });
-*/
 
 
-app.get('/secret', function (req, res) {
+
+app.get('/secret', validateCookie, (req, res) => {
   console.log("masuk /secret");
 
   var getdata = false;
@@ -157,7 +205,7 @@ app.get('/secret', function (req, res) {
     spotifyApi.getMe()
       .then(function (data) {
 
-        console.log('Some information about the authenticated user', data.body);
+       // console.log('Some information about the authenticated user', data.body);
         userid = data.body.id;
         imgurl = data.body.images[0].url;
         console.log(userid);
