@@ -102,6 +102,7 @@ $('#button').click(function () {
 
     else{
 
+        document.cookie = "score=10; path=/";
         window.location.href = '/result' ;
 
     }

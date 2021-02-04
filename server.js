@@ -84,9 +84,11 @@ function validateCookie(req,res,next){
 }
 
 
+
 //if the user click the button , it will go to /login , and process with spotify login
 app.get('/login',  (req, res) => {
   res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
+  
 });
 
 app.get('/callback', (req, res) => { //once it has been logged in, go to /callback
@@ -96,7 +98,7 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 
   var id = generateRandomString(16);
   console.log("\nsession_id: "+id);
-  res.cookie(`session_id`,`${id}`, {httpOnly:true, maxAge:900000}); //cookies set to 15 minutes
+  res.cookie(`session_id`,`${id}`, {httpOnly:true, maxAge:900000,  sameSite: 'lax'}); //cookies set to 15 minutes
  
 
 
