@@ -65,6 +65,7 @@ var generateRandomString = function (length) {
 function validateCookie(req,res,next){
 
   const { cookies } = req;
+  console.log("masuk validateCookie()");
   if('session_id' in cookies){
     console.log(`${JSON.stringify(cookies)} existed`); 
     //if(cookies.session_id === '12345') next();
@@ -72,6 +73,7 @@ function validateCookie(req,res,next){
     //return true;
   }
   else{
+    console.log(`sorry, ${JSON.stringify(cookies)} not existed`); 
     res.redirect('/');
     //return false;
   }
@@ -148,15 +150,16 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 
 
 //prevent user to implicitly enter quiz without log in
-app.get('/quiz/*', function  (req, res)  {
+app.get('/quiz', function  (req, res)  {
 
-  if(loggedin==true){
-  console.log(loggedin);
-  console.log("masuk /quiz-g");
-  res.sendFile(__dirname + "/public/quiz/quiz.html");
-  }
+  console.log(req.url);
+
+  if(loggedin==true && req.url == '/quiz/'){
+    res.sendFile(__dirname + "/public/quiz/quiz.html");
+  }  
   else{
-    res.redirect('../*');
+    console.log("3");
+    res.redirect('/error');
   }
 });
 
@@ -167,13 +170,19 @@ app.get('/result', validateCookie, (req, res) => {
   
 });
 
+app.get('/error', function(req,res) {
+  res.sendFile(__dirname + "/public/Error/error.html");
+});
 
 
+/*
   //kalau selain dri allowable route
-  app.get('*', function (req, res) { 
+app.get('/*', function (req, res) { 
+  console.log(req.url);
+  console.log("masuk /*");
     res.sendFile(__dirname + "/public/Error/error.html");
-    });
-
+});
+*/
 
 
 app.get('/secret', validateCookie, (req, res) => {
