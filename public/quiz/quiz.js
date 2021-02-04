@@ -67,18 +67,18 @@ $(document).ready(function () {
 
     function getAPI() {
 
+    console.log("GET request to server, retrieving API");
        var xhr = $.ajax({
             type: 'GET',
             //url: 'http://localhost:5500/secret',
             url: 'https://lrfy-beta.herokuapp.com/secret',
             success: function (data) {
-                console.log("GET request to server, retrieving API");
+                console.log("API received!");
                 apiready = true;
                 console.log(data);
-                API_KEY.push(data.API);
+                API_KEY.push(data.MM_API);
                 $('#imgg').append(`<img src=${data.USER.image} alt="user_pic">`);
                 $('#username').text(data.USER.displayname);
-                console.log("API received!");
                 xhr.abort();
                 console.log("aborted AJAX to webserver-api");
                 getLyrics();

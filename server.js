@@ -47,6 +47,8 @@ app.use(bodyParser.json());
 
 //start listening to assigned port on line 9
 app.listen(port, () =>
+
+
   console.log(
     `HTTP Server up. Now go to http://localhost: ${port} on ur browser`
   )
@@ -77,6 +79,8 @@ function validateCookie(req,res,next){
     res.redirect('/');
     //return false;
   }
+
+
 }
 
 
@@ -91,8 +95,8 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
   const state = req.query.state;
 
   var id = generateRandomString(16);
-  console.log("state: "+id);
-  res.cookie(`session_id`,`${id}`);
+  console.log("\nsession_id: "+id);
+  res.cookie(`session_id`,`${id}`, {httpOnly:true, maxAge:900000}); //cookies set to 15 minutes
  
 
 
@@ -121,8 +125,7 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
         `Sucessfully retreived access token. Expires in ${expires_in} s.`
       );
        loggedin = true;
-      console.log('Success! You can now close the window.');
-      console.log("");
+      console.log("\n");
       if (loggedin == true) {
         console.log("loggedin = true ")
         res.redirect("/quiz"); //change page to 'quiz'
@@ -152,9 +155,9 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 //prevent user to implicitly enter quiz without log in
 app.get('/quiz', function  (req, res)  {
 
-  console.log(req.url);
+  console.log("masuk /quiz");
 
-  if(loggedin==true && req.url == '/quiz/'){
+  if(loggedin==true){
     res.sendFile(__dirname + "/public/quiz/quiz.html");
   }  
   else{
@@ -167,6 +170,16 @@ app.get('/quiz', function  (req, res)  {
 app.get('/result', validateCookie, (req, res) => {
   console.log("masuk /result")
   res.sendFile(__dirname + "/public/result/result.html");
+
+  const { cookies } = req;
+  console.log("masuk validateCookie()");
+  if('session_id' in cookies){
+    console.log(`${JSON.stringify(cookies)} existed`); 
+    res.clearCookie('session_id',`${cookies}`);
+    console.log("cookies destroyed");
+  }
+
+  
   
 });
 
@@ -194,7 +207,7 @@ app.get('/secret', validateCookie, (req, res) => {
 
   function timeout() {
     setTimeout(function () {
-      console.log("hi");
+      console.log("ready to send data to client");
       if (getdata == true) {
         senddata();
         //console.log("data saved on spotifydata:   " + spotifydata);
@@ -259,8 +272,9 @@ app.get('/secret', validateCookie, (req, res) => {
 }while(getdata==false);
 
 function senddata(){
+  console.log("data sent!");
   var data = {
-    "API": `${process.env.API_KEY}`,
+    "MM_API": `${process.env.API_KEY}`,
     "USER": {
           "displayname": `${userid}`,
           "image": `${imgurl}`
