@@ -171,7 +171,7 @@ app.get('/result', validateCookie, (req, res) => {
 
   //kalau selain dri allowable route
   app.get('*', function (req, res) { 
-    res.sendFile(__dirname + "/public/error/error.html");
+    res.sendFile(__dirname + "/public/Error/error.html");
     });
 
 
