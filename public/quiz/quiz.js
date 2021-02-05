@@ -88,7 +88,7 @@ $(document).ready(function () {
                 for (let index = 0; index < data.USER.ALBUMART.length; index++) {
 
                     console.log("now at"+index+":"+data.USER.ALBUMART[index]);
-                    $('.albumcover').append(`<img style=""; src=${data.USER.ALBUMART[index]} alt=${index}> `);
+                    $('.albumcover').append(`<img src=${data.USER.ALBUMART[index]} alt=${index} width="300" height="300"> `); //enter width and height here
                     
                 }
                 
