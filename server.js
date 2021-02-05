@@ -267,7 +267,7 @@ app.get('/secret', validateCookie, (req, res) => {
           })
           .then(function(data) {
 
-            for(var i=0; i<20; i++){
+            for(var i=0; i<15; i++){
               var albumurl = data.body.items[i].album.images[0].url;
 
               if(topalbum.includes(albumurl,0)==true){
