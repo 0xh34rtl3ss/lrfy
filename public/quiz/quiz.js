@@ -2,12 +2,33 @@ $(document).ready(function () {
 
 
 /************ START OF BACKEND */
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+       var c = ca[i];
+       while (c.charAt(0)==' ') c = c.substring(1);
+       if(c.indexOf(name) == 0)
+          return c.substring(name.length,c.length);
+    }
+    return "";
+}
+
+    var completed = getCookie("completed");
+    console.log("completed: "+completed);
+
     console.log("ready!");
     var API_KEY = [];
     var apiready = false;
     var spotifydata = {};
     var userprogress=0;
+
+    if(completed == "true"){
+    }
+
     getAPI();
+    console.log("userprogress: "+ userprogress);
 
 
 
@@ -72,8 +93,8 @@ $(document).ready(function () {
     console.log("GET request to server, retrieving API");
        var xhr = $.ajax({
             type: 'GET',
-            //url: 'http://localhost:5500/secret',
-            url: 'https://lrfy-beta.herokuapp.com/secret',
+            url: 'http://localhost:5500/secret',
+            //url: 'https://lrfy-beta.herokuapp.com/secret',
             success: function (data) {
                 console.log("API received!");
                 apiready = true;
@@ -106,6 +127,11 @@ $(document).ready(function () {
 /********* START OF FRONTEND */
 $('#button').click(function () {
 
+    var userans = $('input[name="group1"]:checked').val(); //get user answer 
+    console.log(userans); //
+
+    console.log("userprogress: "+ userprogress);
+
     if(userprogress<10){
         userprogress++;
         $('#answered').text(`${userprogress} / 10`);
@@ -113,7 +139,7 @@ $('#button').click(function () {
 
     else{
 
-        document.cookie = "score=10; path=/";
+        document.cookie = "score=10; samesite=lax; path=/";
         window.location.href = '/result' ;
 
     }
@@ -123,7 +149,6 @@ $('#button').click(function () {
 
 
 
-// try using dom-to-img to create a personalised image for user. based on their own datas (name, pfp, scores)
 // add animation while waiting the page to get data from server 
 // 
 
@@ -143,3 +168,8 @@ $('#button').click(function () {
 
 
 }); //end window load
+
+$(window).unload(function() {
+    // delete your cookie here
+    $.cookies.del('score');
+   });

@@ -6,12 +6,13 @@ const express = require('express');
 var bodyParser = require('body-parser');
 const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
-var cookieParser = require('cookie-parser');
+var session = require('express-session');
 const path = require('path');
 
 var loggedin = false;
 var spotifydata = [];
 var sess;
+var completed = false;
 
 var access_token1 = "";
 const port = process.env.PORT || 5500; //allow environment to set their own port number or we assign it
@@ -30,14 +31,19 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
-  //redirectUri: 'http://localhost:5500/callback'
+  //redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
+  redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
 var app = express();
 app.use(express.static('public'));
-app.use(cookieParser());
+app.use(session({
+  secret: 'xQc0W',
+  resave: false,
+  cookie: {maxAge: 900000},
+  saveUninitialized: false,
+}));
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -47,8 +53,6 @@ app.use(bodyParser.json());
 
 //start listening to assigned port on line 9
 app.listen(port, () =>
-
-
   console.log(
     `HTTP Server up. Now go to http://localhost: ${port} on ur browser`
   )
@@ -64,6 +68,7 @@ var generateRandomString = function (length) {
 	return text;
 };
 
+/*
 function validateCookie(req,res,next){
 
   const { cookies } = req;
@@ -82,29 +87,51 @@ function validateCookie(req,res,next){
 
 
 }
+*/
+
 
 
 
 //if the user click the button , it will go to /login , and process with spotify login
 app.get('/login',  (req, res) => {
+
+  req.session.authenticated = false;
+  req.session.completed = false;
+  console.log("new connection, req.session.auth: " +req.session.authenticated);
   console.log("masuk /login");
+  console.log("current url: "+ req.originalUrl);
   console.log("accesstoken: "+spotifyApi.getAccessToken());
+
+  console.log("");
+  console.log(req.body);
+  console.log(req.headers);
+  console.log(req.sessionID);
+  console.log("");
+
   if(spotifyApi.getAccessToken()==null){
-    console.log("redirect to login page");
+  console.log("no acces token , redirect to login page");
   res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
+  }
+  else{
+    req.session = null;
+    res.redirect(spotifyApi.createAuthorizeURL(scopes));
   }
   
 });
 
 app.get('/callback', (req, res) => { //once it has been logged in, go to /callback
   console.log("masuk /callback");
+  console.log("current url: "+ req.originalUrl);
   const error = req.query.error;
   const code = req.query.code;
   const state = req.query.state;
 
   var id = generateRandomString(16);
-  console.log("\nsession_id: "+id);
-  res.cookie(`session_id`,`${id}`, {httpOnly:true, maxAge:900000,  sameSite: 'lax'}); //cookies set to 15 minutes
+  //console.log("\nsession_id: "+id);
+  //res.cookie(`session_id`,`${id}`, {httpOnly:true, maxAge:900000,  sameSite: 'lax'}); //cookies set to 15 minutes
+
+  req.session.authenticated = true;
+  console.log(req.session.authenticated);
  
 
 
@@ -117,6 +144,8 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
   spotifyApi
     .authorizationCodeGrant(code)
     .then(data => {
+
+
       const access_token = data.body['access_token']; //get access token to use for another API call
       const refresh_token = data.body['refresh_token'];
       const expires_in = data.body['expires_in'];
@@ -164,10 +193,14 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 app.get('/quiz', function  (req, res)  {
 
   console.log("masuk /quiz");
+  console.log("current url: "+ req.originalUrl);
+  console.log("req.session.authenticated in /quiz:  " +req.session.authenticated);
+  console.log("req.session.completed in /quiz:  " +req.session.completed);
 
-  if(loggedin==true){
+  if(req.session.authenticated ==true && req.session.completed == false){
+    console.log("masuk 1");
     res.sendFile(__dirname + "/public/quiz/quiz.html");
-  }  
+  } 
   else{
     console.log("3");
     res.redirect('/error');
@@ -175,10 +208,15 @@ app.get('/quiz', function  (req, res)  {
 });
 
 
-app.get('/result', validateCookie, (req, res) => {
+app.get('/result', function (req, res) {
   console.log("masuk /result")
+  console.log("current url: "+ req.originalUrl);
+  console.log("req.session.authenticated in /result:  " +req.session.authenticated);
   res.sendFile(__dirname + "/public/result/result.html");
+  req.session.authenticated = false;
+  req.session.completed = true;
 
+  /*
   const { cookies } = req;
   console.log("masuk validateCookie()");
   if('session_id' in cookies){
@@ -190,13 +228,14 @@ app.get('/result', validateCookie, (req, res) => {
     console.log("access token2: "+spotifyApi.getAccessToken());
     console.log("cookies destroyed");
   }
-
+*/
   
   
 });
 
-app.get('/error', function(req,res) {
+app.get('/error', function (req,res) {
   console.log("masuk /error");
+  console.log("current url: "+ req.originalUrl);
   res.sendFile(__dirname + "/public/Error/error.html");
 });
 
@@ -211,8 +250,10 @@ app.get('/*', function (req, res) {
 */
 
 
-app.get('/secret', validateCookie, (req, res) => {
+app.get('/secret', function (req, res) {
   console.log("masuk /secret");
+  console.log("current url: "+ req.originalUrl);
+  console.log("req.session.authenticated in /secret:  " +req.session.authenticated);
 
   var getdata = false;
   var userid = "";
@@ -229,15 +270,16 @@ app.get('/secret', validateCookie, (req, res) => {
 
         return;
       }
+      else{
+        return;
+      }
       timeout();
     }, 1000);
   }
 
 
 
-  do{
-
-  if (loggedin == true) {
+  if (loggedin == true && req.session.authenticated ==true && req.session.completed == false) {
 
     // Get the authenticated user
     spotifyApi.getMe()
@@ -298,10 +340,10 @@ app.get('/secret', validateCookie, (req, res) => {
 
   } 
   else {
-    res.redirect("/");
+    res.redirect("/error");
   }
 
-}while(getdata==false);
+
 
 function senddata(){
   console.log("data sent!");

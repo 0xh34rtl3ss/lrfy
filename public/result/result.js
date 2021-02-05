@@ -1,5 +1,7 @@
 $(document).ready(function (){
 
+    document.cookie = "completed=true; max-age=10000; samesite=lax; path=/";
+
     function getCookie(cname) {
         var name = cname + "=";
         var ca = document.cookie.split(';');
@@ -23,3 +25,4 @@ $(document).ready(function (){
 
 
 });
+
