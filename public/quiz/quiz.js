@@ -10,6 +10,8 @@ $(document).ready(function () {
     getAPI();
 
 
+
+
     var endpoint = 'https://api.musixmatch.com/ws/1.1/';
     var track_id = '';
     var ajaxResult = [];
@@ -77,11 +79,19 @@ $(document).ready(function () {
                 apiready = true;
                 console.log(data);
                 API_KEY.push(data.MM_API);
-                $('#imgg').append(`<img src=${data.USER.image} alt="user_pic">`);
-                $('#username').text(data.USER.displayname);
                 xhr.abort();
                 console.log("aborted AJAX to webserver-api");
                 getLyrics();
+                $('#imgg').append(`<img src=${data.USER.image} alt="user_pic">`);
+                $('#username').text(data.USER.displayname);
+                console.log("length: "+ data.USER.ALBUMART.length);
+                for (let index = 0; index < data.USER.ALBUMART.length; index++) {
+
+                    console.log("now at"+index+":"+data.USER.ALBUMART[index]);
+                    $('.albumcover').append(`<img style=""; src=${data.USER.ALBUMART[index]} alt=${index}> `);
+                    
+                }
+                
             }
         });
 

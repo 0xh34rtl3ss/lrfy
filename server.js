@@ -67,7 +67,7 @@ var generateRandomString = function (length) {
 function validateCookie(req,res,next){
 
   const { cookies } = req;
-  console.log("masuk validateCookie()");
+  console.log(`masuk validateCookie()`);
   if('session_id' in cookies){
     console.log(`${JSON.stringify(cookies)} existed`); 
     //if(cookies.session_id === '12345') next();
@@ -75,7 +75,7 @@ function validateCookie(req,res,next){
     //return true;
   }
   else{
-    console.log(`sorry, ${JSON.stringify(cookies)} not existed`); 
+    console.log(`sorry, cookies not existed`); 
     res.redirect('/');
     //return false;
   }
@@ -87,11 +87,15 @@ function validateCookie(req,res,next){
 
 //if the user click the button , it will go to /login , and process with spotify login
 app.get('/login',  (req, res) => {
+  console.log("masuk /login");
+  if(spotifyApi.getAccessToken()==null){
   res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
+  }
   
 });
 
 app.get('/callback', (req, res) => { //once it has been logged in, go to /callback
+  console.log("masuk /callback");
   const error = req.query.error;
   const code = req.query.code;
   const state = req.query.state;
@@ -178,6 +182,9 @@ app.get('/result', validateCookie, (req, res) => {
   if('session_id' in cookies){
     console.log(`${JSON.stringify(cookies)} existed`); 
     res.clearCookie('session_id',`${cookies}`);
+    console.log("access token1: "+spotifyApi.getAccessToken());
+    spotifyApi.resetAccessToken(spotifyApi.getAccessToken());
+    console.log("access token2: "+spotifyApi.getAccessToken());
     console.log("cookies destroyed");
   }
 
@@ -186,6 +193,7 @@ app.get('/result', validateCookie, (req, res) => {
 });
 
 app.get('/error', function(req,res) {
+  console.log("masuk /error");
   res.sendFile(__dirname + "/public/Error/error.html");
 });
 
@@ -206,6 +214,7 @@ app.get('/secret', validateCookie, (req, res) => {
   var getdata = false;
   var userid = "";
   var imgurl = "";
+  var topalbum = [];
 
   function timeout() {
     setTimeout(function () {
@@ -220,6 +229,8 @@ app.get('/secret', validateCookie, (req, res) => {
       timeout();
     }, 1000);
   }
+
+
 
   do{
 
@@ -249,12 +260,28 @@ app.get('/secret', validateCookie, (req, res) => {
 
       })*/.then(function(){
           //get user saved tracks
-          spotifyApi.getMySavedTracks({
-            limit : 2,
-            offset: 1
+          spotifyApi.getMyTopTracks({
+            limit : 20,
+            offset: 0,
+            time_range: 'short_term'
           })
           .then(function(data) {
-           // console.log(JSON.stringify(data.body.items[1]));
+
+            for(var i=0; i<20; i++){
+              var albumurl = data.body.items[i].album.images[0].url;
+
+              if(topalbum.includes(albumurl,0)==true){
+              }
+              else{
+                topalbum.push(albumurl);
+              }
+
+            }
+           // console.log(data.body.items[0].album.name);
+           // topalbum.push(JSON.stringify(data.body.items[0].album.images[0].url))
+           // checkduplicate();
+
+           // console.log(JSON.stringify(data.body));
            // spotifydata.push(data.body.items[1]);
             console.log('Done!');
           }, function(err) {
@@ -279,8 +306,10 @@ function senddata(){
     "MM_API": `${process.env.API_KEY}`,
     "USER": {
           "displayname": `${userid}`,
-          "image": `${imgurl}`
+          "image": `${imgurl}`,
+          "ALBUMART": topalbum
       }
+    
   };
 
 
