@@ -88,7 +88,9 @@ function validateCookie(req,res,next){
 //if the user click the button , it will go to /login , and process with spotify login
 app.get('/login',  (req, res) => {
   console.log("masuk /login");
+  console.log("accesstoken: "+spotifyApi.getAccessToken());
   if(spotifyApi.getAccessToken()==null){
+    console.log("redirect to login page");
   res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
   }
   
