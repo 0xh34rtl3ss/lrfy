@@ -184,6 +184,7 @@ app.get('/result', validateCookie, (req, res) => {
   if('session_id' in cookies){
     console.log(`${JSON.stringify(cookies)} existed`); 
     res.clearCookie('session_id',`${cookies}`);
+    req.session = null;
     console.log("access token1: "+spotifyApi.getAccessToken());
     spotifyApi.resetAccessToken(spotifyApi.getAccessToken());
     console.log("access token2: "+spotifyApi.getAccessToken());

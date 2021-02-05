@@ -85,7 +85,8 @@ $(document).ready(function () {
                 $('#imgg').append(`<img src=${data.USER.image} alt="user_pic">`);
                 $('#username').text(data.USER.displayname);
                 console.log("length: "+ data.USER.ALBUMART.length);
-                for (let index = 0; index < data.USER.ALBUMART.length; index++) {
+
+                for (let index = 0; index < data.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on...
 
                     console.log("now at"+index+":"+data.USER.ALBUMART[index]);
                     $('.albumcover').append(`<img src=${data.USER.ALBUMART[index]} alt=${index} width="300" height="300"> `); //enter width and height here
