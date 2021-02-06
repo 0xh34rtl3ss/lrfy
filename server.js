@@ -190,6 +190,14 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 });
 
 
+app.get('/error', function (req,res) {
+  req.session.destroy();
+  console.log("masuk /error");
+  console.log("current url: "+ req.originalUrl);
+ res.sendFile(__dirname + "/public/Error/error.html");
+});
+
+
 
 //prevent user to implicitly enter quiz without log in
 app.get('/quiz/*', function  (req, res)  {
@@ -215,13 +223,15 @@ app.get('/quiz/*', function  (req, res)  {
 });
 
 
+
+
 app.get('/result', function (req, res) {
+  res.sendFile(__dirname + "/public/result/result.html");
   console.log("");
   console.log("masuk /result")
   console.log("current url: "+ req.originalUrl);
   console.log("req.session.authenticated in /result:  " +req.session.authenticated);
   console.log("req.session.completed in /result:  " +req.session.completed);
-  res.sendFile(__dirname + "/public/result/result.html");
   req.session.authenticated = false;
   req.session.completed = true;
   req.session.destroy();
@@ -243,12 +253,6 @@ app.get('/result', function (req, res) {
   
 });
 
-app.get('/error', function (req,res) {
-  req.session.destroy();
-  console.log("masuk /error");
-  console.log("current url: "+ req.originalUrl);
- res.sendFile(__dirname + "/public/Error/error.html");
-});
 
 
 
