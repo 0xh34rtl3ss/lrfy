@@ -196,10 +196,15 @@ app.get('/quiz/*', function  (req, res)  {
   console.log("");
   console.log("masuk /quiz");
   console.log("current url: "+ req.originalUrl);
+  var url = [];
+  var aaa = req.originalUrl.split("/");
+  aaa.forEach(function(obj){
+    url.push(obj);
+  });
   console.log("req.session.authenticated in /quiz:  " +req.session.authenticated);
   console.log("req.session.completed in /quiz:  " +req.session.completed);
 
-  if(req.session.authenticated ==true && (req.session.completed == false || req.session.completed == undefined)){
+  if(url[2] == '' && req.session.authenticated ==true && (req.session.completed == false || req.session.completed == undefined)){
     console.log("masuk 1");
     return res.sendFile(__dirname + "/public/quiz/quiz.html");
   } 
@@ -239,6 +244,7 @@ app.get('/result', function (req, res) {
 });
 
 app.get('/error', function (req,res) {
+  req.session.destroy();
   console.log("masuk /error");
   console.log("current url: "+ req.originalUrl);
  res.sendFile(__dirname + "/public/Error/error.html");
