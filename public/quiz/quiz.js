@@ -15,19 +15,18 @@ function getCookie(cname) {
     return "";
 }
 
-    var completed = getCookie("completed");
-    console.log("completed: "+completed);
 
     console.log("ready!");
     var API_KEY = [];
     var apiready = false;
     var spotifydata = {};
     var userprogress=0;
-
-    if(completed == "true"){
-    }
-
+   
     getAPI();
+
+
+
+    
     console.log("userprogress: "+ userprogress);
 
 
@@ -93,9 +92,16 @@ function getCookie(cname) {
     console.log("GET request to server, retrieving API");
        var xhr = $.ajax({
             type: 'GET',
-            url: 'http://localhost:5500/secret',
-            //url: 'https://lrfy-beta.herokuapp.com/secret',
+            //url: 'http://localhost:5500/secret',
+            url: 'https://lrfy-beta.herokuapp.com/secret',
             success: function (data) {
+                if(typeof data === 'string' || data instanceof String){
+                    xhr.abort();
+                    window.location.href = '/error' ;
+                    console.log("its a string");
+                }
+                else{
+                console.log("data type: " + typeof(data));
                 console.log("API received!");
                 apiready = true;
                 console.log(data);
@@ -107,12 +113,12 @@ function getCookie(cname) {
                 $('#username').text(data.USER.displayname);
                 console.log("length: "+ data.USER.ALBUMART.length);
 
-                for (let index = 0; index < data.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on...
-
+                for (let index = 0; index < data.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on..
                     console.log("now at"+index+":"+data.USER.ALBUMART[index]);
                     $('.albumcover').append(`<img src=${data.USER.ALBUMART[index]} alt=${index} width="300" height="300"> `); //enter width and height here
-                    
                 }
+
+            }
                 
             }
         });
@@ -169,7 +175,3 @@ $('#button').click(function () {
 
 }); //end window load
 
-$(window).unload(function() {
-    // delete your cookie here
-    $.cookies.del('score');
-   });

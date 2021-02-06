@@ -31,8 +31,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  //redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
-  redirectUri: 'http://localhost:5500/callback'
+  redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
+  //redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
@@ -97,15 +97,16 @@ app.get('/login',  (req, res) => {
 
   req.session.authenticated = false;
   req.session.completed = false;
-  console.log("new connection, req.session.auth: " +req.session.authenticated);
+  console.log("");
   console.log("masuk /login");
+  console.log("req.session.auth in /login: " +req.session.authenticated);
+  console.log("req.session.completed in /login: " +req.session.completed);
   console.log("current url: "+ req.originalUrl);
   console.log("accesstoken: "+spotifyApi.getAccessToken());
 
   console.log("");
-  console.log(req.body);
-  console.log(req.headers);
-  console.log(req.sessionID);
+  console.log("session.id: "+req.session.id);
+  console.log("sessionID: "+ req.sessionID);
   console.log("");
 
   if(spotifyApi.getAccessToken()==null){
@@ -120,6 +121,7 @@ app.get('/login',  (req, res) => {
 });
 
 app.get('/callback', (req, res) => { //once it has been logged in, go to /callback
+  console.log("");
   console.log("masuk /callback");
   console.log("current url: "+ req.originalUrl);
   const error = req.query.error;
@@ -190,31 +192,34 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 
 
 //prevent user to implicitly enter quiz without log in
-app.get('/quiz', function  (req, res)  {
-
+app.get('/quiz/*', function  (req, res)  {
+  console.log("");
   console.log("masuk /quiz");
   console.log("current url: "+ req.originalUrl);
   console.log("req.session.authenticated in /quiz:  " +req.session.authenticated);
   console.log("req.session.completed in /quiz:  " +req.session.completed);
 
-  if(req.session.authenticated ==true && req.session.completed == false){
+  if(req.session.authenticated ==true && (req.session.completed == false || req.session.completed == undefined)){
     console.log("masuk 1");
-    res.sendFile(__dirname + "/public/quiz/quiz.html");
+    return res.sendFile(__dirname + "/public/quiz/quiz.html");
   } 
   else{
     console.log("3");
-    res.redirect('/error');
+    return res.redirect('/error');
   }
 });
 
 
 app.get('/result', function (req, res) {
+  console.log("");
   console.log("masuk /result")
   console.log("current url: "+ req.originalUrl);
   console.log("req.session.authenticated in /result:  " +req.session.authenticated);
+  console.log("req.session.completed in /result:  " +req.session.completed);
   res.sendFile(__dirname + "/public/result/result.html");
   req.session.authenticated = false;
   req.session.completed = true;
+  req.session.destroy();
 
   /*
   const { cookies } = req;
@@ -236,24 +241,23 @@ app.get('/result', function (req, res) {
 app.get('/error', function (req,res) {
   console.log("masuk /error");
   console.log("current url: "+ req.originalUrl);
-  res.sendFile(__dirname + "/public/Error/error.html");
+ res.sendFile(__dirname + "/public/Error/error.html");
 });
 
 
-/*
+
   //kalau selain dri allowable route
-app.get('/*', function (req, res) { 
-  console.log(req.url);
-  console.log("masuk /*");
-    res.sendFile(__dirname + "/public/Error/error.html");
-});
-*/
+
+
 
 
 app.get('/secret', function (req, res) {
+  console.log("");
   console.log("masuk /secret");
   console.log("current url: "+ req.originalUrl);
   console.log("req.session.authenticated in /secret:  " +req.session.authenticated);
+  console.log("req.session.completed in /secret:  " +req.session.completed);
+  console.log("loggedin in /secret:  " +loggedin);
 
   var getdata = false;
   var userid = "";
@@ -277,9 +281,14 @@ app.get('/secret', function (req, res) {
     }, 1000);
   }
 
-
-
-  if (loggedin == true && req.session.authenticated ==true && req.session.completed == false) {
+  /*
+  if( req.session.completed == undefined && req.session.authenticated == undefined && loggedin==true ){
+    console.log("current url1: "+ req.originalUrl);
+    return res.redirect('/quiz');
+    console.log("current url2: "+ req.originalUrl);
+  }
+*/
+    if (loggedin == true && req.session.authenticated ==true && (req.session.completed == false || req.session.completed == undefined)) {
 
     // Get the authenticated user
     spotifyApi.getMe()
@@ -288,8 +297,8 @@ app.get('/secret', function (req, res) {
        // console.log('Some information about the authenticated user', data.body);
         userid = data.body.id;
         imgurl = data.body.images[0].url;
-        console.log(userid);
-        console.log(imgurl);
+        //console.log(userid);
+       // console.log(imgurl);
 
       }, function (err) {
         console.log('Something went wrong!', err);
@@ -364,6 +373,12 @@ function senddata(){
 
 
 
+});
+
+app.get('/*', function (req, res) { 
+  console.log(req.url);
+  console.log("masuk /*");
+    res.sendFile(__dirname + "/public/Error/error.html");
 });
 
 //DELETE LATER
