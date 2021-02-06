@@ -269,6 +269,9 @@ app.get('/secret', function (req, res) {
   var userid = "";
   var imgurl = "";
   var topalbum = [];
+  var topsongs_s = [];
+  var topsongs_m = [];
+  var topsongs_l = [];
 
   function timeout() {
     setTimeout(function () {
@@ -308,52 +311,90 @@ app.get('/secret', function (req, res) {
 
       }, function (err) {
         console.log('Something went wrong!', err);
-      })/*.then(function(){
-
-        //get user playlist
-        spotifyApi.getUserPlaylists(userid)
-          .then(function (data) {
-            console.log('Retrieved playlists', data.body);
-          }, function (err) {
-            console.log('Something went wrong!', err);
-          });
-
-      })*/.then(function(){
+      }).then(function(){
           //get user saved tracks
           spotifyApi.getMyTopTracks({
             limit : 20,
             offset: 0,
             time_range: 'short_term'
           })
-          .then(function(data) {
+            .then(function(data) {
 
-            for(var i=0; i<15; i++){
-              var albumurl = data.body.items[i].album.images[0].url;
+              for(var i=0; i<15; i++){
+               var albumurl = data.body.items[i].album.images[0].url;
 
-              if(topalbum.includes(albumurl,0)==true){
-              }
-              else{
-                topalbum.push(albumurl);
-              }
+               if(topalbum.includes(albumurl,0)==true){
+               }
+                else{
+                  topalbum.push(albumurl);
+                }
+
+             }
+
+             for (let index = 0; index < 20; index++ ) {
+              var obj = {};
+              obj['tracks'] = data.body.items[index].name;
+              obj['artist']= data.body.items[index].artists[0].name;
+             topsongs_s.push(obj);
 
             }
+
            // console.log(data.body.items[0].album.name);
            // topalbum.push(JSON.stringify(data.body.items[0].album.images[0].url))
            // checkduplicate();
 
            // console.log(JSON.stringify(data.body));
            // spotifydata.push(data.body.items[1]);
-            console.log('Done!');
+              console.log('Done!');
           }, function(err) {
             console.log('Something went wrong!', err);
+          })
+          .then(function (){
+            spotifyApi.getMyTopTracks({
+              limit: 20,
+              offset: 0,
+              time_range: 'medium_term'
+            })
+              .then(function(data){
+                
+                for (let index = 0; index < 20; index++ ) {
+                  var obj = {};
+                  obj['tracks'] = data.body.items[index].name;
+                  obj['artist']= data.body.items[index].artists[0].name;
+                 topsongs_m.push(obj);
+                }
+                //console.log('Some information about the authenticated user', data.body);
+                
+
+            },function(err){
+              console.log('Something went wrong!', err);
+            })
+            .then(function(){
+              spotifyApi.getMyTopTracks({
+                limit: 20,
+                offset: 0,
+                time_range: 'long_term'
+            })
+              .then(function(data){
+                for (let index = 0; index < 20; index++ ) {
+                  var obj = {};
+                  obj['tracks'] = data.body.items[index].name;
+                  obj['artist']= data.body.items[index].artists[0].name;
+                 topsongs_l.push(obj);
+                }
+
+              },function(err){
+                console.log('Something went wrong!', err);
+              })
           });
 
       });
 
       getdata=true;
       timeout();
+    });
 
-  } 
+  } //end if
   else {
     res.redirect("/error");
   }
@@ -361,20 +402,38 @@ app.get('/secret', function (req, res) {
 
 
 function senddata(){
+
+ // console.log("topsong_m:  " + JSON.parse(topsongs_m));
+  console.log("topsong_m:  " + topsongs_m);
+
   console.log("data sent!");
   var data = {
     "MM_API": `${process.env.API_KEY}`,
     "USER": {
           "displayname": `${userid}`,
           "image": `${imgurl}`,
-          "ALBUMART": topalbum
+          "ALBUMART": topalbum,
+          "TOPSONGS" : [
+            {
+              "short": topsongs_s    
+            },
+            {
+              "medium" : topsongs_m
+            },
+            {
+              "long" : topsongs_l
+            }
+          ]
       }
     
   };
 
 
   console.log(data);
-  res.send(data);
+  console.log(data.USER.TOPSONGS[0]);
+  console.log(data.USER.TOPSONGS[1]);
+  console.log(data.USER.TOPSONGS[2]);
+ res.send(data); // UNCOMMMNET THOOS
 }
 
 
