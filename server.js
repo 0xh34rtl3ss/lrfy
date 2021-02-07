@@ -4,6 +4,9 @@ modules initialization
 require('dotenv').config()
 const express = require('express');
 var bodyParser = require('body-parser');
+music = require('musicmatch')({
+  apikey: `${process.env.API_KEY}`
+});
 const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
 var session = require('express-session');
@@ -31,8 +34,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
-  //redirectUri: 'http://localhost:5500/callback'
+  //redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
+  redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
@@ -41,7 +44,9 @@ app.use(express.static('public'));
 app.use(session({
   secret: 'xQc0W',
   resave: false,
-  cookie: {maxAge: 900000},
+  cookie: {
+    maxAge: 900000
+  },
   saveUninitialized: false,
 }));
 app.use(bodyParser.urlencoded({
@@ -59,13 +64,13 @@ app.listen(port, () =>
 );
 
 var generateRandomString = function (length) {
-	var text = '';
-	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var text = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-	for (var i = 0; i < length; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
+  for (var i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 };
 
 /*
@@ -93,37 +98,36 @@ function validateCookie(req,res,next){
 
 
 //if the user click the button , it will go to /login , and process with spotify login
-app.get('/login',  (req, res) => {
+app.get('/login', (req, res) => {
 
   req.session.authenticated = false;
   req.session.completed = false;
   console.log("");
   console.log("masuk /login");
-  console.log("req.session.auth in /login: " +req.session.authenticated);
-  console.log("req.session.completed in /login: " +req.session.completed);
-  console.log("current url: "+ req.originalUrl);
-  console.log("accesstoken: "+spotifyApi.getAccessToken());
+  console.log("req.session.auth in /login: " + req.session.authenticated);
+  console.log("req.session.completed in /login: " + req.session.completed);
+  console.log("current url: " + req.originalUrl);
+  console.log("accesstoken: " + spotifyApi.getAccessToken());
 
   console.log("");
-  console.log("session.id: "+req.session.id);
-  console.log("sessionID: "+ req.sessionID);
+  console.log("session.id: " + req.session.id);
+  console.log("sessionID: " + req.sessionID);
   console.log("");
 
-  if(spotifyApi.getAccessToken()==null){
-  console.log("no acces token , redirect to login page");
-  res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
-  }
-  else{
+  if (spotifyApi.getAccessToken() == null) {
+    console.log("no acces token , redirect to login page");
+    res.redirect(spotifyApi.createAuthorizeURL(scopes)); //goto spotify login page
+  } else {
     req.session = null;
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
   }
-  
+
 });
 
 app.get('/callback', (req, res) => { //once it has been logged in, go to /callback
   console.log("");
   console.log("masuk /callback");
-  console.log("current url: "+ req.originalUrl);
+  console.log("current url: " + req.originalUrl);
   const error = req.query.error;
   const code = req.query.code;
   const state = req.query.state;
@@ -134,7 +138,7 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
 
   req.session.authenticated = true;
   console.log(req.session.authenticated);
- 
+
 
 
   if (error) {
@@ -163,7 +167,7 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
       console.log(
         `Sucessfully retreived access token. Expires in ${expires_in} s.`
       );
-       loggedin = true;
+      loggedin = true;
       console.log("\n");
       if (loggedin == true) {
         console.log("loggedin = true ")
@@ -184,39 +188,39 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
     .catch(error => {
       console.error('Error getting Tokens:', error);
       res.send(`Error getting Tokens: ${error}`);
+      req.redirect('/error');
     });
 
 
 });
 
 
-app.get('/error', function (req,res) {
+app.get('/error', function (req, res) {
   req.session.destroy();
   console.log("masuk /error");
-  console.log("current url: "+ req.originalUrl);
- res.sendFile(__dirname + "/public/Error/error.html");
+  console.log("current url: " + req.originalUrl);
+  res.sendFile(__dirname + "/public/Error/error.html");
 });
 
 
 
 //prevent user to implicitly enter quiz without log in
-app.get('/quiz/*', function  (req, res)  {
+app.get('/quiz', function (req, res) {
   console.log("");
   console.log("masuk /quiz");
-  console.log("current url: "+ req.originalUrl);
+  console.log("current url: " + req.originalUrl);
   var url = [];
   var aaa = req.originalUrl.split("/");
-  aaa.forEach(function(obj){
+  aaa.forEach(function (obj) {
     url.push(obj);
   });
-  console.log("req.session.authenticated in /quiz:  " +req.session.authenticated);
-  console.log("req.session.completed in /quiz:  " +req.session.completed);
+  console.log("req.session.authenticated in /quiz:  " + req.session.authenticated);
+  console.log("req.session.completed in /quiz:  " + req.session.completed);
 
-  if(url[2] == '' && req.session.authenticated ==true && (req.session.completed == false || req.session.completed == undefined)){
+  if (url[2] == '' && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
     console.log("masuk 1");
     return res.sendFile(__dirname + "/public/quiz/quiz.html");
-  } 
-  else{
+  } else {
     console.log("3");
     return res.redirect('/error');
   }
@@ -229,9 +233,9 @@ app.get('/result', function (req, res) {
   res.sendFile(__dirname + "/public/result/result.html");
   console.log("");
   console.log("masuk /result")
-  console.log("current url: "+ req.originalUrl);
-  console.log("req.session.authenticated in /result:  " +req.session.authenticated);
-  console.log("req.session.completed in /result:  " +req.session.completed);
+  console.log("current url: " + req.originalUrl);
+  console.log("req.session.authenticated in /result:  " + req.session.authenticated);
+  console.log("req.session.completed in /result:  " + req.session.completed);
   req.session.authenticated = false;
   req.session.completed = true;
   req.session.destroy();
@@ -249,14 +253,14 @@ app.get('/result', function (req, res) {
     console.log("cookies destroyed");
   }
 */
-  
-  
+
+
 });
 
 
 
 
-  //kalau selain dri allowable route
+//kalau selain dri allowable route
 
 
 
@@ -264,35 +268,22 @@ app.get('/result', function (req, res) {
 app.get('/secret', function (req, res) {
   console.log("");
   console.log("masuk /secret");
-  console.log("current url: "+ req.originalUrl);
-  console.log("req.session.authenticated in /secret:  " +req.session.authenticated);
-  console.log("req.session.completed in /secret:  " +req.session.completed);
-  console.log("loggedin in /secret:  " +loggedin);
+  console.log("current url: " + req.originalUrl);
+  console.log("req.session.authenticated in /secret:  " + req.session.authenticated);
+  console.log("req.session.completed in /secret:  " + req.session.completed);
+  console.log("loggedin in /secret:  " + loggedin);
 
-  var getdata = false;
+
   var userid = "";
   var imgurl = "";
   var topalbum = [];
   var topsongs_s = [];
   var topsongs_m = [];
   var topsongs_l = [];
+  var endpoint = 'https://api.musixmatch.com/ws/1.1/';
 
-  function timeout() {
-    setTimeout(function () {
-      console.log("ready to send data to client");
-      if (getdata == true) {
-        senddata();
-        //console.log("data saved on spotifydata:   " + spotifydata);
-       // res.send(spotifydata);
 
-        return;
-      }
-      else{
-        return;
-      }
-      timeout();
-    }, 1000);
-  }
+
 
   /*
   if( req.session.completed == undefined && req.session.authenticated == undefined && loggedin==true ){
@@ -301,102 +292,143 @@ app.get('/secret', function (req, res) {
     console.log("current url2: "+ req.originalUrl);
   }
 */
-    if (loggedin == true && req.session.authenticated ==true && (req.session.completed == false || req.session.completed == undefined)) {
+  if (loggedin == true && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
 
     // Get the authenticated user
     spotifyApi.getMe()
       .then(function (data) {
 
-       // console.log('Some information about the authenticated user', data.body);
+        // console.log('Some information about the authenticated user', data.body);
         userid = data.body.id;
         imgurl = data.body.images[0].url;
         //console.log(userid);
-       // console.log(imgurl);
+        // console.log(imgurl);
 
       }, function (err) {
         console.log('Something went wrong!', err);
-      }).then(function(){
-          //get user saved tracks
-          spotifyApi.getMyTopTracks({
-            limit : 20,
+      }).then(function () {
+
+        //get user saved tracks
+        spotifyApi.getMyTopTracks({
+            limit: 20,
             offset: 0,
             time_range: 'short_term'
           })
-            .then(function(data) {
+          .then(function (data){
+            topsongs_s = data.body.items;
+            for (var i = 0; i < 15; i++) {
+              var albumurl = data.body.items[i].album.images[0].url;
+              if (topalbum.includes(albumurl, 0) == true) {} 
+              else {
+                topalbum.push(albumurl);
 
-              for(var i=0; i<15; i++){
-               var albumurl = data.body.items[i].album.images[0].url;
-
-               if(topalbum.includes(albumurl,0)==true){
-               }
-                else{
-                  topalbum.push(albumurl);
-                }
-
-             }
-
-             for (let index = 0; index < 20; index++ ) {
-              var obj = {};
-              obj['tracks'] = data.body.items[index].name;
-              obj['artist']= data.body.items[index].artists[0].name;
-             topsongs_s.push(obj);
+              }
 
             }
 
-           // console.log(data.body.items[0].album.name);
-           // topalbum.push(JSON.stringify(data.body.items[0].album.images[0].url))
-           // checkduplicate();
+              //console.log("tracks: "+ song);
+             // console.log("artist: "+artist);
+              
 
-           // console.log(JSON.stringify(data.body));
-           // spotifydata.push(data.body.items[1]);
-              console.log('Done!');
-          }, function(err) {
+
+
+
+
+
+
+
+            /*
+
+            for (var index = 0; index < 20; ) {
+
+               //.replace(/ /g, "%20");
+               //.replace(/ /g, "%20");
+              console.log("song: " + song + ", artist:" + artist);
+
+              var getsongid = `${endpoint}track.search?format=jsonp&callback=callback&q_track=${song}&q_artist=${artist}&f_has_lyrics=true&s_artist_rating=desc&s_track_rating=desc&quorum_factor=1&apikey=${process.env.API_KEY}`;
+
+              
+
+
+
+
+              var obj = {};
+              obj['tracks'] = data.body.items[index].name;
+              obj['artist'] = data.body.items[index].artists[0].name;
+              obj['songid'] = '';
+
+
+              topsongs_s.push(obj);
+
+            }
+            */
+
+            // console.log(data.body.items[0].album.name);
+            // topalbum.push(JSON.stringify(data.body.items[0].album.images[0].url))
+            // checkduplicate();
+
+            // console.log(JSON.stringify(data.body)); 
+            // spotifydata.push(data.body.items[1]);
+            console.log('Done!');
+
+          }, function (err) {
             console.log('Something went wrong!', err);
           })
           .then(function (){
-            spotifyApi.getMyTopTracks({
-              limit: 20,
-              offset: 0,
-              time_range: 'medium_term'
-            })
-              .then(function(data){
-                
-                for (let index = 0; index < 20; index++ ) {
-                  var obj = {};
-                  obj['tracks'] = data.body.items[index].name;
-                  obj['artist']= data.body.items[index].artists[0].name;
-                 topsongs_m.push(obj);
-                }
-                //console.log('Some information about the authenticated user', data.body);
-                
+            //
+            console.log("masuk funct: " + topsongs_s);
+            
 
-            },function(err){
-              console.log('Something went wrong!', err);
-            })
-            .then(function(){
-              spotifyApi.getMyTopTracks({
+          })
+          .then(function () {
+            spotifyApi.getMyTopTracks({
                 limit: 20,
                 offset: 0,
-                time_range: 'long_term'
-            })
-              .then(function(data){
-                for (let index = 0; index < 20; index++ ) {
+                time_range: 'medium_term'
+              })
+              .then(function (data) {
+
+                for (let index = 0; index < 20; index++) {
                   var obj = {};
                   obj['tracks'] = data.body.items[index].name;
-                  obj['artist']= data.body.items[index].artists[0].name;
-                 topsongs_l.push(obj);
+                  obj['artist'] = data.body.items[index].artists[0].name;
+                  obj['songid'] = '';
+                  topsongs_m.push(obj);
                 }
+                //console.log('Some information about the authenticated user', data.body);
 
-              },function(err){
+
+              }, function (err) {
                 console.log('Something went wrong!', err);
               })
+              .then(function () {
+                spotifyApi.getMyTopTracks({
+                    limit: 20,
+                    offset: 0,
+                    time_range: 'long_term'
+                  })
+                  .then(function (data) {
+                    for (let index = 0; index < 20; index++) {
+                      var obj = {};
+                      obj['tracks'] = data.body.items[index].name;
+                      obj['artist'] = data.body.items[index].artists[0].name;
+                      obj['songid'] = '';
+                      topsongs_l.push(obj);
+                    }
+
+                  }, function (err) {
+                    console.log('Something went wrong!', err);
+                  }).then(function () {
+                     senddata(); ////////////////////////////////////////////////////////////////////////////
+                  }, function (err) {
+                    console.log('Something went wrong!', err);
+                  });
+              });
+
           });
 
-      });
 
-      getdata=true;
-      timeout();
-    });
+      });
 
   } //end if
   else {
@@ -405,49 +437,48 @@ app.get('/secret', function (req, res) {
 
 
 
-function senddata(){
+  function senddata() {
 
- // console.log("topsong_m:  " + JSON.parse(topsongs_m));
-  console.log("topsong_m:  " + topsongs_m);
+    // console.log("topsong_m:  " + JSON.parse(topsongs_m));
+    console.log("topsong_m:  " + topsongs_m);
 
-  console.log("data sent!");
-  var data = {
-    "MM_API": `${process.env.API_KEY}`,
-    "USER": {
-          "displayname": `${userid}`,
-          "image": `${imgurl}`,
-          "ALBUMART": topalbum,
-          "TOPSONGS" : [
-            {
-              "short": topsongs_s    
-            },
-            {
-              "medium" : topsongs_m
-            },
-            {
-              "long" : topsongs_l
-            }
-          ]
+    console.log("data sent!");
+    var data = {
+      "MM_API": `${process.env.API_KEY}`,
+      "USER": {
+        "displayname": `${userid}`,
+        "image": `${imgurl}`,
+        "ALBUMART": topalbum,
+        "TOPSONGS": [{
+            "short": topsongs_s
+          },
+          {
+            "medium": topsongs_m
+          },
+          {
+            "long": topsongs_l
+          }
+        ]
       }
-    
-  };
+
+    };
 
 
-  console.log(data);
-  console.log(data.USER.TOPSONGS[0]);
-  console.log(data.USER.TOPSONGS[1]);
-  console.log(data.USER.TOPSONGS[2]);
- res.send(data); // UNCOMMMNET THOOS
-}
+    console.log(data);
+    console.log(data.USER.TOPSONGS[0]);
+    console.log(data.USER.TOPSONGS[1]);
+    console.log(data.USER.TOPSONGS[2]);
+    res.send(data); // UNCOMMMNET THOOS
+  }
 
 
 
 });
 
-app.get('/*', function (req, res) { 
+app.get('/*', function (req, res) {
   console.log(req.url);
   console.log("masuk /*");
-    res.sendFile(__dirname + "/public/Error/error.html");
+  res.sendFile(__dirname + "/public/Error/error.html");
 });
 
 //DELETE LATER

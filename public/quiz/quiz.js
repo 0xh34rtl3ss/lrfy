@@ -5,9 +5,8 @@ $(document).ready(function () {
 
 
     console.log("ready!");
-    var API_KEY = [];
-    var apiready = false;
-    var spotifydata = {};
+    var API_KEY;
+    var userdata; // stored user data in JSON , call this var to access user data
     var userprogress=0;
    
     getAPI();
@@ -17,23 +16,59 @@ $(document).ready(function () {
     
     console.log("userprogress: "+ userprogress);
 
-
-
-
-    var endpoint = 'https://api.musixmatch.com/ws/1.1/';
     var track_id = '';
     var ajaxResult = [];
 
     /* test values */
-    var song = 'I Wanna Be Yours';
-    var artist = 'Artic Monkeys';
+   // var song = 'I Wanna Be Yours';
+   // var artist = 'Artic Monkeys';
     var songid = 82923045; //i wanna be yours
 
-    song = song.replace(/ /g, "%20");
-    artist = artist.replace(/ /g, "%20");
+    //song = song.replace(/ /g, "%20");
+    //artist = artist.replace(/ /g, "%20");
+
+    function getAPI() {
+
+    console.log("GET request to server, retrieving API");
+       var xhr = $.ajax({
+            type: 'GET',
+            url: 'http://localhost:5500/secret',
+            //url: 'https://lrfy-beta.herokuapp.com/secret',
+            success: function (data) {
+                if(typeof data === 'string' || data instanceof String){
+                    xhr.abort();
+                    window.location.href = '/error' ;
+                    console.log("its a string");
+                }
+                else{
+                console.log("data type: " + typeof(data));
+                console.log("API received!");
+                userdata = data; //copy received data to local var
+                console.log(userdata);
+                API_KEY = userdata.MM_API;
+                
+                xhr.abort();
+                console.log("aborted AJAX to webserver-api");
+               // getLyrics();
+                $('#imgg').append(`<img src=${userdata.USER.image} alt="user_pic">`);
+                $('#username').text(userdata.USER.displayname);
+                for (let index = 0; index < userdata.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on..
+                    $('.albumcover').append(`<img src=${userdata.USER.ALBUMART[index]} alt=${index} width="300" height="300"> `); //enter width and height here
+                }
 
 
+             }
+                
+            },
+            error: function(xhr, status, error) {
+                window.location.href = '/error' ;
+              }
+        });
 
+
+    }
+
+    
     //find songid based on title
     function getLyrics() {
 
@@ -63,55 +98,16 @@ $(document).ready(function () {
                 */
                 lyrics = JSON.stringify(result.message.body.snippet.snippet_body);
                 console.log(lyrics);
-                $('#lyrics').html(lyrics);
+                $('.lyrics-box').append(`<h5>${lyrics}</h5>`);
                 gll.abort();
                 console.log("aborted AJAX to MusixMatch");
-
             }
 
         });
 
     }
 
-
-
-    function getAPI() {
-
-    console.log("GET request to server, retrieving API");
-       var xhr = $.ajax({
-            type: 'GET',
-            //url: 'http://localhost:5500/secret',
-            url: 'https://lrfy-beta.herokuapp.com/secret',
-            success: function (data) {
-                if(typeof data === 'string' || data instanceof String){
-                    xhr.abort();
-                    window.location.href = '/error' ;
-                    console.log("its a string");
-                }
-                else{
-                console.log("data type: " + typeof(data));
-                console.log("API received!");
-                apiready = true;
-                console.log(data);
-                API_KEY.push(data.MM_API);
-                xhr.abort();
-                console.log("aborted AJAX to webserver-api");
-                getLyrics();
-                $('#imgg').append(`<img src=${data.USER.image} alt="user_pic">`);
-                $('#username').text(data.USER.displayname);
-                console.log("length: "+ data.USER.ALBUMART.length);
-
-                for (let index = 0; index < data.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on..
-                    $('.albumcover').append(`<img src=${data.USER.ALBUMART[index]} alt=${index} width="300" height="300"> `); //enter width and height here
-                }
-
-            }
-                
-            }
-        });
-
-
-    }
+    
 /************ END OF BACKEND */
 
 
