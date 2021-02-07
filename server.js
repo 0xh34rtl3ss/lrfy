@@ -314,21 +314,20 @@ app.get('/secret', function (req, res) {
             offset: 0,
             time_range: 'short_term'
           })
-          .then(function (data){
+          .then(function (data) {
             topsongs_s = data.body.items;
             for (var i = 0; i < 15; i++) {
               var albumurl = data.body.items[i].album.images[0].url;
-              if (topalbum.includes(albumurl, 0) == true) {} 
-              else {
+              if (topalbum.includes(albumurl, 0) == true) {} else {
                 topalbum.push(albumurl);
 
               }
 
             }
 
-              //console.log("tracks: "+ song);
-             // console.log("artist: "+artist);
-              
+            //console.log("tracks: "+ song);
+            // console.log("artist: "+artist);
+
 
 
 
@@ -374,10 +373,20 @@ app.get('/secret', function (req, res) {
           }, function (err) {
             console.log('Something went wrong!', err);
           })
-          .then(function (){
+          .then(function () {
             //
-            console.log("masuk funct: " + topsongs_s);
-            
+            //console.log("masuk funct: " + topsongs_s);
+            /*
+            music.artistSearch({
+                q_artist: "prodigy",
+                page_size: 5
+              })
+              .then(function (data) {
+                console.log(data);
+              }).catch(function (err) {
+                console.log(err);
+              })
+              */
 
           })
           .then(function () {
@@ -419,7 +428,7 @@ app.get('/secret', function (req, res) {
                   }, function (err) {
                     console.log('Something went wrong!', err);
                   }).then(function () {
-                     senddata(); ////////////////////////////////////////////////////////////////////////////
+                    senddata(); ////////////////////////////////////////////////////////////////////////////
                   }, function (err) {
                     console.log('Something went wrong!', err);
                   });
