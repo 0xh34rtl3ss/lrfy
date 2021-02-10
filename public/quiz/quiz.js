@@ -32,8 +32,18 @@ $(document).ready(function () {
     console.log("GET request to server, retrieving API");
        var xhr = $.ajax({
             type: 'GET',
-            url: 'http://localhost:5500/secret',
-            //url: 'https://lrfy-beta.herokuapp.com/secret',
+            //url: 'http://localhost:5500/secret',
+            url: 'https://lrfy-beta.herokuapp.com/secret',
+
+            beforeSend: function(){
+                $('.loader').show();
+                $('.content').hide();
+            },
+            complete: function(){
+                $('.loader').hide();
+                $('.content').show();
+
+            },
             success: function (data) {
                 if(typeof data === 'string' || data instanceof String){
                     xhr.abort();
@@ -65,45 +75,6 @@ $(document).ready(function () {
               }
         });
 
-
-    }
-
-    
-    //find songid based on title
-    function getLyrics() {
-
-        var getsongid = `${endpoint}track.search?format=jsonp&callback=callback&q_track=${song}&q_artist=${artist}&quorum_factor=1&apikey=${API_KEY}`;
-        var getlyrics = `${endpoint}track.lyrics.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
-        var getsnippet = `${endpoint}track.snippet.get?format=jsonp&callback=callback&track_id=${songid}&apikey=${API_KEY}`;
-
-       var gll =  $.ajax({
-            url: getsnippet,
-            method: 'get',
-            success: function (data) {
-                console.log("make ajax call to Musixmatch API");
-
-                result = data.replace("callback(", "");
-                result = result.replace(");", "");
-                // console.log(result);
-                result = JSON.parse(result);
-
-                /* FOR LYRICS */
-                /*
-                lyrics = JSON.stringify(result.message.body.lyrics.lyrics_body).replace(/['"]+/g, '').replace(/\n/g, '<br />');
-
-                console.log(lyrics);
-                console.log(typeof(lyrics));
-
-                $('#lyrics').html(lyrics);
-                */
-                lyrics = JSON.stringify(result.message.body.snippet.snippet_body);
-                console.log(lyrics);
-                $('.lyrics-box').append(`<h5>${lyrics}</h5>`);
-                gll.abort();
-                console.log("aborted AJAX to MusixMatch");
-            }
-
-        });
 
     }
 
