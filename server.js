@@ -60,7 +60,7 @@ app.use(bodyParser.json());
 //start listening to assigned port on line 9
 app.listen(port, () =>
   console.log(
-    `HTTP Server up. Now go to http://localhost: ${port} on ur browser`
+    `HTTP Server up. Now go to http://localhost:${port} on ur browser`
   )
 );
 
@@ -322,9 +322,6 @@ app.get('/secret', function (req, res) {
           })
           .then(function (data) {
             topsongs_s = data.body.items;
-            console.log()
-            console.log("test:    " + JSON.stringify(data.body.items[0].album));
-            console.log()
             for (var i = 0; i < 20; i++) {
               var albumurl = data.body.items[i].album.images[0].url;
               if (topalbum.includes(albumurl, 0) == true) {} else {
@@ -562,7 +559,7 @@ app.get('/secret', function (req, res) {
 
                 console.log("masuk long");
                 spotifyApi.getMyTopTracks({
-                    limit: 10,
+                    limit: 15,
                     offset: 0,
                     time_range: 'long_term'
                   })
@@ -570,29 +567,24 @@ app.get('/secret', function (req, res) {
                   .then(async function (data) {
 
 
-
+                    
                       var songcounter = 0;
                       var currentindex = 0;
                       do {
-                        console.log("currentindex: " + currentindex);
-                        console.log("songcounter: " + songcounter);
-
                         var songName = data.body.items[currentindex].name;
                         var artistName = data.body.items[currentindex].artists[0].name;
 
                         const found = topsongs_s2.some(item => item.tracks === songName);
                         const found2 = topsongs_m.some(item => item.tracks === songName);
-                        if (found && found2) { //found same song name
-
-                          console.log(songName + " existed!");
+                        if (found==true || found2==true) { //found same song name
+                          console.log(songName + " existed! \nSkipped!\n");
                           currentindex++;
                           continue;
 
                         } else {
-                          console.log(songName + " not existed!");
 
                           try {
-                            console.log("current artistName: " + artistName);
+
                             const data0 = await music.artistSearch({
                               q_artist: artistName, //pass the artist name 
                               page: 1
@@ -601,7 +593,6 @@ app.get('/secret', function (req, res) {
                             var artist_ID = data0.message.body.artist_list[0].artist.artist_id;
 
                             if (data0.message.body.artist_list[0].artist.artist_name.toLowerCase() == artistName.toLowerCase()) {
-                              console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " = " + artistName.toLowerCase());
 
                               const data1 = await music.trackSearch({
                                 q_track: songName,
@@ -614,8 +605,13 @@ app.get('/secret', function (req, res) {
                               })
 
                               const result = await music.trackSnippet({
-                                track_id: data1.message.body.track_list[0].track.track_id,
+                                track_id: data1.message.body.track_list[0].track.track_id
                               })
+
+                              console.log("tracks: " + songName + "   artist: " + artistName);
+                              console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
+                              console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
+                              console.log("snippet: " + result.message.body.snippet.snippet_body);
 
                               var obj = {};
                               obj['tracks'] = songName;
@@ -625,13 +621,8 @@ app.get('/secret', function (req, res) {
                               obj['snippet'] = result.message.body.snippet.snippet_body;
                               topsongs_l.push(obj);
 
-                              console.log("tracks: " + songName + "   artist: " + artistName);
-                              console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
-                              console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
-                              console.log("snippet: " + result.message.body.snippet.snippet_body);
                               currentindex++;
                               songcounter++;
-                              console.log("currentindex: " + currentindex);
                               console.log("songcounter: " + songcounter);
                               console.log();
 
@@ -647,13 +638,12 @@ app.get('/secret', function (req, res) {
 
                           } catch (error) {
                             currentindex++;
-                            console.error(error);
-                            console.log();
+                          // console.error(error);
                           }
 
                         }
 
-                      } while (songcounter < 5 && currentindex < 10);
+                      } while (songcounter < 5 && currentindex < 15);
 
 
 
@@ -665,7 +655,7 @@ app.get('/secret', function (req, res) {
                       console.log('Something went wrong!', err);
                     }).then(function () {
                     var t1 = performance.now()
-                    console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+                    console.log("Call to doSomething took " + ((t1 - t0)/1000) + " seconds.")
                     senddata(); ////////////////////////////////////////////////////////////////////////////
                   }, function (err) {
                     console.log('Something went wrong!', err);
