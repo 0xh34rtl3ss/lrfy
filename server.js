@@ -263,8 +263,6 @@ app.get('/result', function (req, res) {
 //kalau selain dri allowable route
 
 
-
-
 app.get('/secret', function (req, res) {
       console.log("");
       console.log("masuk /secret");
@@ -281,7 +279,6 @@ app.get('/secret', function (req, res) {
       var topsongs_s2 = [];
       var topsongs_m = [];
       var topsongs_l = [];
-      var endpoint = 'https://api.musixmatch.com/ws/1.1/';
 
 
 
