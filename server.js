@@ -305,7 +305,7 @@ app.get('/secret', function (req, res) {
       .then(function (data) {
 
         // console.log('Some information about the authenticated user', data.body);
-        userid = data.body.id;
+        userid = data.body.display_name;
         imgurl = data.body.images[0].url;
         //console.log(userid);
         // console.log(imgurl);
