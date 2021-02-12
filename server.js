@@ -11,6 +11,7 @@ const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
 var session = require('express-session');
 const path = require('path');
+const {performance} = require('perf_hooks');
 
 var loggedin = false;
 var spotifydata = [];
@@ -264,103 +265,161 @@ app.get('/result', function (req, res) {
 
 
 app.get('/secret', function (req, res) {
-      console.log("");
-      console.log("masuk /secret");
-      console.log("current url: " + req.originalUrl);
-      console.log("req.session.authenticated in /secret:  " + req.session.authenticated);
-      console.log("req.session.completed in /secret:  " + req.session.completed);
-      console.log("loggedin in /secret:  " + loggedin);
+  console.log("");
+  console.log("masuk /secret");
+  console.log("current url: " + req.originalUrl);
+  console.log("req.session.authenticated in /secret:  " + req.session.authenticated);
+  console.log("req.session.completed in /secret:  " + req.session.completed);
+  console.log("loggedin in /secret:  " + loggedin);
 
 
-      var userid = "";
-      var imgurl = "";
-      var topalbum = [];
-      var topsongs_s = [];
-      var topsongs_s2 = [];
-      var topsongs_m = [];
-      var topsongs_l = [];
+  var userid = "";
+  var imgurl = "";
+  var topalbum = [];
+  var topsongs_s = [];
+  var topsongs_s2 = [];
+  var topsongs_m = [];
+  var topsongs_l = [];
 
 
 
 
-      /*
+  /*
   if( req.session.completed == undefined && req.session.authenticated == undefined && loggedin==true ){
     console.log("current url1: "+ req.originalUrl);
     return res.redirect('/quiz');
     console.log("current url2: "+ req.originalUrl);
   }
 */
-      if (loggedin == true && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
+  if (loggedin == true && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
+    var t0 = performance.now()
 
 
 
-        // Get the authenticated user
-        spotifyApi.getMe()
+
+
+
+
+    // Get the authenticated user
+    spotifyApi.getMe()
+      .then(function (data) {
+
+        // console.log('Some information about the authenticated user', data.body);
+        userid = data.body.id;
+        imgurl = data.body.images[0].url;
+        //console.log(userid);
+        // console.log(imgurl);
+
+      }, function (err) {
+        console.log('Something went wrong!', err);
+      }).then(function () {
+
+        //get user saved tracks
+        spotifyApi.getMyTopTracks({
+            limit: 20,
+            offset: 0,
+            time_range: 'short_term'
+          })
           .then(function (data) {
+            topsongs_s = data.body.items;
+            console.log()
+            console.log("test:    " + JSON.stringify(data.body.items[0].album));
+            console.log()
+            for (var i = 0; i < 20; i++) {
+              var albumurl = data.body.items[i].album.images[0].url;
+              if (topalbum.includes(albumurl, 0) == true) {} else {
+                topalbum.push(albumurl);
 
-            // console.log('Some information about the authenticated user', data.body);
-            userid = data.body.id;
-            imgurl = data.body.images[0].url;
-            //console.log(userid);
-            // console.log(imgurl);
+              }
+
+            }
+
+            console.log('Done!');
 
           }, function (err) {
             console.log('Something went wrong!', err);
-          }).then(function () {
+          })
+          .then(async function () {
 
-              //get user saved tracks
-              spotifyApi.getMyTopTracks({
-                  limit: 20,
-                  offset: 0,
-                  time_range: 'short_term'
-                })
-                .then(function (data) {
-                  topsongs_s = data.body.items;
-                  console.log()
-                  console.log("test:    " + JSON.stringify(data.body.items[0].album));
-                  console.log()
-                  for (var i = 0; i < 20; i++) {
-                    var albumurl = data.body.items[i].album.images[0].url;
-                    if (topalbum.includes(albumurl, 0) == true) {} else {
-                      topalbum.push(albumurl);
 
-                    }
+            for (let index = 0; index < 5; index++) {
 
+              // use try/catch for error handling
+              try {
+                var songName = topsongs_s[index].name;
+                var artistName = topsongs_s[index].artists[0].name;
+
+                // call synchronously and wait for the response
+                const data = await music.artistSearch({
+                  q_artist: artistName, //pass the artist name 
+                  page: 1
+                });
+
+                var artist_ID = data.message.body.artist_list[0].artist.artist_id;
+
+                if (data.message.body.artist_list[0].artist.artist_name == artistName) { //same artist name
+
+                  var obj = {}; //create objects to push on array
+                  obj['tracks'] = songName;
+                  obj['artist'] = artistName;
+                  obj['artistID'] = artist_ID;
+                  obj['trackID'] = '';
+                  obj['snippet'] = '';
+                  topsongs_s2.push(obj); //push tht objects 
+
+                  try {
+                    var songName = topsongs_s2[index].tracks;
+                    var artistName = topsongs_s2[index].artist;
+
+                    // call synchronously and wait for the response
+                    const data = await music.trackSearch({
+                      q_track: songName,
+                      q_artist: artistName,
+                      f_has_lyrics: true,
+                      f_artist_id: topsongs_s2[index].artistID,
+                      s_track_rating: 'desc',
+                      s_artist_rating: 'desc',
+                      page: 1,
+                    })
+
+                    const result = await music.trackSnippet({
+                      track_id: data.message.body.track_list[0].track.track_id,
+                    })
+
+
+                    var trackID = data.message.body.track_list[0].track.track_id;
+                    var snippet = result.message.body.snippet.snippet_body
+                    console.log("tracks: " + songName + "   artist: " + artistName);
+                    console.log("artistID: " + topsongs_s2[index].artistID);
+                    console.log("trackid: " + trackID);
+                    console.log("snippet: " + snippet);
+
+                    topsongs_s2[index].trackID = trackID;
+                    topsongs_s2[index].snippet = snippet;
+                    console.log();
+
+                  } catch (error) {
+                    console.error(error);
                   }
 
-                  console.log('Done!');
 
-                }, function (err) {
-                  console.log('Something went wrong!', err);
-                })
-                .then(async function () {
+                } else {
+                  //do nothing , not creating object
+                }
 
+              } catch (error) {
+                console.error(error);
+              }
+            }
 
-                  for (let index = 0; index < 5; index++) {
+          })
+          /*
+                    .then(async function () {
+                      console.log("masuk 2nd async");
 
-                    // use try/catch for error handling
-                    try {
-                      var songName = topsongs_s[index].name;
-                      var artistName = topsongs_s[index].artists[0].name;
+                      for (let index = 0; index < topsongs_s2.length; index++) {
 
-                      // call synchronously and wait for the response
-                      const data = await music.artistSearch({
-                        q_artist: artistName, //pass the artist name 
-                        page: 1
-                      });
-
-                      var artist_ID = data.message.body.artist_list[0].artist.artist_id;
-
-                      if (data.message.body.artist_list[0].artist.artist_name == artistName) { //same artist name
-
-                        var obj = {}; //create objects to push on array
-                        obj['tracks'] = songName;
-                        obj['artist'] = artistName;
-                        obj['artistID'] = artist_ID;
-                        obj['trackID'] = '';
-                        obj['snippet'] = '';
-                        topsongs_s2.push(obj); //push tht objects 
-
+                        // use try/catch for error handling
                         try {
                           var songName = topsongs_s2[index].tracks;
                           var artistName = topsongs_s2[index].artist;
@@ -374,7 +433,7 @@ app.get('/secret', function (req, res) {
                             s_track_rating: 'desc',
                             s_artist_rating: 'desc',
                             page: 1,
-                          })
+                            })
 
                           const result = await music.trackSnippet({
                             track_id: data.message.body.track_list[0].track.track_id,
@@ -383,11 +442,11 @@ app.get('/secret', function (req, res) {
 
                           var trackID = data.message.body.track_list[0].track.track_id;
                           var snippet = result.message.body.snippet.snippet_body
-                          console.log("tracks: " + songName + "   artist: " + artistName);
+                          console.log("tracks: "+songName+"   artist: "+artistName);
                           console.log("artistID: " + topsongs_s2[index].artistID);
-                          console.log("trackid: " + trackID);
-                          console.log("snippet: " + snippet);
-
+                          console.log("trackid: "+trackID);
+                          console.log("snippet: "+snippet);
+                          
                           topsongs_s2[index].trackID = trackID;
                           topsongs_s2[index].snippet = snippet;
                           console.log();
@@ -395,231 +454,282 @@ app.get('/secret', function (req, res) {
                         } catch (error) {
                           console.error(error);
                         }
-
-
-                      } else {
-                        //do nothing , not creating object
                       }
 
-                    } catch (error) {
-                      console.error(error);
-                    }
-                  }
 
-                })
-                /*
-                          .then(async function () {
-                            console.log("masuk 2nd async");
+                    }) 
+                    /********************** MEDIUM */
+          .then(async function () {
+            console.log("masuk medium");
+            spotifyApi.getMyTopTracks({
+                limit: 10,
+                offset: 0,
+                time_range: 'medium_term'
+              })
 
-                            for (let index = 0; index < topsongs_s2.length; index++) {
-
-                              // use try/catch for error handling
-                              try {
-                                var songName = topsongs_s2[index].tracks;
-                                var artistName = topsongs_s2[index].artist;
-
-                                // call synchronously and wait for the response
-                                const data = await music.trackSearch({
-                                  q_track: songName,
-                                  q_artist: artistName,
-                                  f_has_lyrics: true,
-                                  f_artist_id: topsongs_s2[index].artistID,
-                                  s_track_rating: 'desc',
-                                  s_artist_rating: 'desc',
-                                  page: 1,
-                                  })
-
-                                const result = await music.trackSnippet({
-                                  track_id: data.message.body.track_list[0].track.track_id,
-                                })
-
-
-                                var trackID = data.message.body.track_list[0].track.track_id;
-                                var snippet = result.message.body.snippet.snippet_body
-                                console.log("tracks: "+songName+"   artist: "+artistName);
-                                console.log("artistID: " + topsongs_s2[index].artistID);
-                                console.log("trackid: "+trackID);
-                                console.log("snippet: "+snippet);
-                                
-                                topsongs_s2[index].trackID = trackID;
-                                topsongs_s2[index].snippet = snippet;
-                                console.log();
-
-                              } catch (error) {
-                                console.error(error);
-                              }
-                            }
-
-
-                          }) 
-                          /********************** MEDIUM */
-                .then(async function () {
-                    spotifyApi.getMyTopTracks({
-                        limit: 5,
-                        offset: 0,
-                        time_range: 'medium_term'
-                      })
-                      .then(async function (data) {
-
-
-                          // counter = 0;
-                          // do{
-                          //   const found = vendors.some(item => item.Name === 'Magenic');
-                          //   if (found) {
-                              
-                            
-                          //   } else {
-                              
-                          //   }
-
-                          // }while()
-
-                          for (let index = 0; index < 5; index++) {
-
-                            try {
-                              var songName = data.body.items[index].name;
-                              var artistName = data.body.items[index].artists[0].name;
-
-                              // call synchronously and wait for the response
-                              const data0 = await music.artistSearch({
-                                q_artist: artistName, //pass the artist name 
-                                page: 1
-                              });
-
-                              var artist_ID = data0.message.body.artist_list[0].artist.artist_id;
-
-                              if (data0.message.body.artist_list[0].artist.artist_name == artistName) {
-
-                                const data1 = await music.trackSearch({
-                                  q_track: songName,
-                                  q_artist: artistName,
-                                  f_has_lyrics: true,
-                                  f_artist_id: data0.message.body.artist_list[0].artist.artist_id,
-                                  s_track_rating: 'desc',
-                                  s_artist_rating: 'desc',
-                                  page: 1,
-                                })
-
-                                const result = await music.trackSnippet({
-                                  track_id: data1.message.body.track_list[0].track.track_id,
-                                })
-
-                                var obj = {};
-                                obj['tracks'] = songName;
-                                obj['artist'] = artistName;
-                                obj['artistID'] = artist_ID;
-                                obj['trackID'] = data1.message.body.track_list[0].track.track_id;
-                                obj['snippet'] = result.message.body.snippet.snippet_body;
-                                topsongs_m.push(obj);
-
-                                console.log("tracks: " + songName + "   artist: " + artistName);
-                                console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
-                                console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
-                                console.log("snippet: " + result.message.body.snippet.snippet_body);
-                                console.log();
-
-                              }
-
-                              } catch (error) {
-                                console.error(error);
-                              }
-                            
+              .then(async function (data) {
 
 
 
+                  var songcounter = 0;
+                  var currentindex = 0;
+                  do {
+                    console.log("currentindex: " + currentindex);
+                    console.log("songcounter: " + songcounter);
 
+                    var songName = data.body.items[currentindex].name;
+                    var artistName = data.body.items[currentindex].artists[0].name;
 
+                    const found = topsongs_s2.some(item => item.tracks === songName);
+                    if (found) { //found same song name
 
-                            }
+                      console.log(songName + " existed!");
+                      currentindex++;
+                      continue;
 
+                    } else {
+                      console.log(songName + " not existed!");
 
-                          },
-                          function (err) {
-                            console.log('Something went wrong!', err);
-                          })
-                        /**************** LONG  */
-                        .then(function () {
-                          spotifyApi.getMyTopTracks({
-                              limit: 5,
-                              offset: 0,
-                              time_range: 'long_term'
-                            })
-                            .then(function (data) {
-                              for (let index = 0; index < 5; index++) {
-                                var obj = {};
-                                obj['tracks'] = data.body.items[index].name;
-                                obj['artist'] = data.body.items[index].artists[0].name;
-                                obj['songid'] = '';
-                                topsongs_l.push(obj);
-                              }
-
-                            }, function (err) {
-                              console.log('Something went wrong!', err);
-                            }).then(function () {
-                              senddata(); ////////////////////////////////////////////////////////////////////////////
-                            }, function (err) {
-                              console.log('Something went wrong!', err);
-                            });
+                      try {
+                        console.log("current artistName: " + artistName);
+                        const data0 = await music.artistSearch({
+                          q_artist: artistName, //pass the artist name 
+                          page: 1
                         });
 
-                      });
+                        var artist_ID = data0.message.body.artist_list[0].artist.artist_id;
+
+                        if (data0.message.body.artist_list[0].artist.artist_name.toLowerCase() == artistName.toLowerCase()) {
+                          console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " = " + artistName.toLowerCase());
+
+                          const data1 = await music.trackSearch({
+                            q_track: songName,
+                            q_artist: data0.message.body.artist_list[0].artist.artist_name,
+                            f_has_lyrics: true,
+                            f_artist_id: data0.message.body.artist_list[0].artist.artist_id,
+                            s_track_rating: 'desc',
+                            s_artist_rating: 'desc',
+                            page: 1,
+                          })
+
+                          const result = await music.trackSnippet({
+                            track_id: data1.message.body.track_list[0].track.track_id,
+                          })
+
+                          var obj = {};
+                          obj['tracks'] = songName;
+                          obj['artist'] = artistName;
+                          obj['artistID'] = artist_ID;
+                          obj['trackID'] = data1.message.body.track_list[0].track.track_id;
+                          obj['snippet'] = result.message.body.snippet.snippet_body;
+                          topsongs_m.push(obj);
+
+                          console.log("tracks: " + songName + "   artist: " + artistName);
+                          console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
+                          console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
+                          console.log("snippet: " + result.message.body.snippet.snippet_body);
+                          currentindex++;
+                          songcounter++;
+                          console.log("currentindex: " + currentindex);
+                          console.log("songcounter: " + songcounter);
+                          console.log();
 
 
-                });
 
-          } //end if
-        else {
-          res.redirect("/error");
-        }
+                        } else {
+                          console.log("artist name mistmatch!");
+                          currentindex++;
+                          console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " != " + artistName.toLowerCase());
+                        }
 
 
 
-        function senddata() {
+                      } catch (error) {
+                        currentindex++;
+                        console.error(error);
+                      }
 
-          // console.log("topsong_m:  " + JSON.parse(topsongs_m));
-          console.log("topsong_m:  " + topsongs_m);
+                    }
 
-          console.log("data sent!");
-          var data = {
-            "MM_API": `${process.env.API_KEY}`,
-            "USER": {
-              "displayname": `${userid}`,
-              "image": `${imgurl}`,
-              "ALBUMART": topalbum,
-              "TOPSONGS": [{
-                  "short": topsongs_s2
+                  } while (songcounter < 5 && currentindex < 10);
+
                 },
-                {
-                  "medium": topsongs_m
-                },
-                {
-                  "long": topsongs_l
-                }
-              ]
-            }
+                function (err) {
+                  console.log('Something went wrong!', err);
+                })
+              /**************** LONG  */
+              .then(async function () {
 
-          };
+                console.log("masuk long");
+                spotifyApi.getMyTopTracks({
+                    limit: 10,
+                    offset: 0,
+                    time_range: 'long_term'
+                  })
+
+                  .then(async function (data) {
 
 
-          console.log(data);
-          console.log(data.USER.TOPSONGS[0]);
-          console.log(data.USER.TOPSONGS[1]);
-          console.log(data.USER.TOPSONGS[2]);
-          res.send(data); // UNCOMMMNET THOOS
-        }
 
+                      var songcounter = 0;
+                      var currentindex = 0;
+                      do {
+                        console.log("currentindex: " + currentindex);
+                        console.log("songcounter: " + songcounter);
+
+                        var songName = data.body.items[currentindex].name;
+                        var artistName = data.body.items[currentindex].artists[0].name;
+
+                        const found = topsongs_s2.some(item => item.tracks === songName);
+                        const found2 = topsongs_m.some(item => item.tracks === songName);
+                        if (found && found2) { //found same song name
+
+                          console.log(songName + " existed!");
+                          currentindex++;
+                          continue;
+
+                        } else {
+                          console.log(songName + " not existed!");
+
+                          try {
+                            console.log("current artistName: " + artistName);
+                            const data0 = await music.artistSearch({
+                              q_artist: artistName, //pass the artist name 
+                              page: 1
+                            });
+
+                            var artist_ID = data0.message.body.artist_list[0].artist.artist_id;
+
+                            if (data0.message.body.artist_list[0].artist.artist_name.toLowerCase() == artistName.toLowerCase()) {
+                              console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " = " + artistName.toLowerCase());
+
+                              const data1 = await music.trackSearch({
+                                q_track: songName,
+                                q_artist: data0.message.body.artist_list[0].artist.artist_name,
+                                f_has_lyrics: true,
+                                f_artist_id: data0.message.body.artist_list[0].artist.artist_id,
+                                s_track_rating: 'desc',
+                                s_artist_rating: 'desc',
+                                page: 1,
+                              })
+
+                              const result = await music.trackSnippet({
+                                track_id: data1.message.body.track_list[0].track.track_id,
+                              })
+
+                              var obj = {};
+                              obj['tracks'] = songName;
+                              obj['artist'] = artistName;
+                              obj['artistID'] = artist_ID;
+                              obj['trackID'] = data1.message.body.track_list[0].track.track_id;
+                              obj['snippet'] = result.message.body.snippet.snippet_body;
+                              topsongs_l.push(obj);
+
+                              console.log("tracks: " + songName + "   artist: " + artistName);
+                              console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
+                              console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
+                              console.log("snippet: " + result.message.body.snippet.snippet_body);
+                              currentindex++;
+                              songcounter++;
+                              console.log("currentindex: " + currentindex);
+                              console.log("songcounter: " + songcounter);
+                              console.log();
+
+
+
+                            } else {
+                              console.log("artist name mistmatch!");
+                              currentindex++;
+                              console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " != " + artistName.toLowerCase());
+                            }
+
+
+
+                          } catch (error) {
+                            currentindex++;
+                            console.error(error);
+                            console.log();
+                          }
+
+                        }
+
+                      } while (songcounter < 5 && currentindex < 10);
+
+
+
+
+
+
+                    },
+                    function (err) {
+                      console.log('Something went wrong!', err);
+                    }).then(function () {
+                    var t1 = performance.now()
+                    console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+                    senddata(); ////////////////////////////////////////////////////////////////////////////
+                  }, function (err) {
+                    console.log('Something went wrong!', err);
+                  });
+              });
+
+          });
 
 
       });
 
-    app.get('/*', function (req, res) {
-      console.log(req.url);
-      console.log("masuk /*");
-      res.sendFile(__dirname + "/public/Error/error.html");
-    });
+  } //end if
+  else {
+    res.redirect("/error");
+  }
 
-    //DELETE LATER
-    app.post('/endpoint', function (req, res) {
-      var obj = {};
-      console.log('body: ' + JSON.stringify(req.body));
-    });
+
+
+  function senddata() {
+
+    // console.log("topsong_m:  " + JSON.parse(topsongs_m));
+    console.log("topsong_m:  " + topsongs_m);
+
+    console.log("data sent!");
+    var data = {
+      "MM_API": `${process.env.API_KEY}`,
+      "USER": {
+        "displayname": `${userid}`,
+        "image": `${imgurl}`,
+        "ALBUMART": topalbum,
+        "TOPSONGS": [{
+            "short": topsongs_s2
+          },
+          {
+            "medium": topsongs_m
+          },
+          {
+            "long": topsongs_l
+          }
+        ]
+      }
+
+    };
+
+
+    console.log(data);
+    console.log(data.USER.TOPSONGS[0]);
+    console.log(data.USER.TOPSONGS[1]);
+    console.log(data.USER.TOPSONGS[2]);
+    res.send(data); // UNCOMMMNET THOOS
+  }
+
+
+
+});
+
+app.get('/*', function (req, res) {
+  console.log(req.url);
+  console.log("masuk /*");
+  res.sendFile(__dirname + "/public/Error/error.html");
+});
+
+//DELETE LATER
+app.post('/endpoint', function (req, res) {
+  var obj = {};
+  console.log('body: ' + JSON.stringify(req.body));
+});
