@@ -11,7 +11,9 @@ const axios = require('axios').default;
 var SpotifyWebApi = require('spotify-web-api-node');
 var session = require('express-session');
 const path = require('path');
-const {performance} = require('perf_hooks');
+const {
+  performance
+} = require('perf_hooks');
 
 var loggedin = false;
 var spotifydata = [];
@@ -280,6 +282,7 @@ app.get('/secret', function (req, res) {
   var topsongs_s2 = [];
   var topsongs_m = [];
   var topsongs_l = [];
+  var debug = true; //change to false when want to debug(skip the process)
 
 
 
@@ -291,7 +294,7 @@ app.get('/secret', function (req, res) {
     console.log("current url2: "+ req.originalUrl);
   }
 */
-  if (loggedin == true && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
+  if (debug == true && loggedin == true && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
     var t0 = performance.now()
 
 
@@ -457,9 +460,9 @@ app.get('/secret', function (req, res) {
                     }) 
                     /********************** MEDIUM */
           .then(async function () {
-            console.log("masuk medium");
+            console.log("--------------------MEDIUM TERM--------------------");
             spotifyApi.getMyTopTracks({
-                limit: 10,
+                limit: 15,
                 offset: 0,
                 time_range: 'medium_term'
               })
@@ -471,24 +474,19 @@ app.get('/secret', function (req, res) {
                   var songcounter = 0;
                   var currentindex = 0;
                   do {
-                    console.log("currentindex: " + currentindex);
-                    console.log("songcounter: " + songcounter);
-
                     var songName = data.body.items[currentindex].name;
                     var artistName = data.body.items[currentindex].artists[0].name;
 
                     const found = topsongs_s2.some(item => item.tracks === songName);
                     if (found) { //found same song name
-
-                      console.log(songName + " existed!");
+                      console.log(songName + " existed! \nSkipped!\n");
                       currentindex++;
                       continue;
 
                     } else {
-                      console.log(songName + " not existed!");
 
                       try {
-                        console.log("current artistName: " + artistName);
+
                         const data0 = await music.artistSearch({
                           q_artist: artistName, //pass the artist name 
                           page: 1
@@ -497,7 +495,6 @@ app.get('/secret', function (req, res) {
                         var artist_ID = data0.message.body.artist_list[0].artist.artist_id;
 
                         if (data0.message.body.artist_list[0].artist.artist_name.toLowerCase() == artistName.toLowerCase()) {
-                          console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " = " + artistName.toLowerCase());
 
                           const data1 = await music.trackSearch({
                             q_track: songName,
@@ -510,8 +507,13 @@ app.get('/secret', function (req, res) {
                           })
 
                           const result = await music.trackSnippet({
-                            track_id: data1.message.body.track_list[0].track.track_id,
+                            track_id: data1.message.body.track_list[0].track.track_id
                           })
+
+                          console.log("tracks: " + songName + "   artist: " + artistName);
+                          console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
+                          console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
+                          console.log("snippet: " + result.message.body.snippet.snippet_body);
 
                           var obj = {};
                           obj['tracks'] = songName;
@@ -521,13 +523,8 @@ app.get('/secret', function (req, res) {
                           obj['snippet'] = result.message.body.snippet.snippet_body;
                           topsongs_m.push(obj);
 
-                          console.log("tracks: " + songName + "   artist: " + artistName);
-                          console.log("artistID: " + data0.message.body.artist_list[0].artist.artist_id);
-                          console.log("trackid: " + data1.message.body.track_list[0].track.track_id);
-                          console.log("snippet: " + result.message.body.snippet.snippet_body);
                           currentindex++;
                           songcounter++;
-                          console.log("currentindex: " + currentindex);
                           console.log("songcounter: " + songcounter);
                           console.log();
 
@@ -543,12 +540,20 @@ app.get('/secret', function (req, res) {
 
                       } catch (error) {
                         currentindex++;
-                        console.error(error);
+                        // console.error(error);
                       }
 
                     }
 
-                  } while (songcounter < 5 && currentindex < 10);
+                  } while (songcounter < 5 && currentindex < 15);
+
+
+
+
+
+
+
+
 
                 },
                 function (err) {
@@ -557,7 +562,7 @@ app.get('/secret', function (req, res) {
               /**************** LONG  */
               .then(async function () {
 
-                console.log("masuk long");
+                console.log("--------------------LONG TERM--------------------");
                 spotifyApi.getMyTopTracks({
                     limit: 15,
                     offset: 0,
@@ -567,7 +572,7 @@ app.get('/secret', function (req, res) {
                   .then(async function (data) {
 
 
-                    
+
                       var songcounter = 0;
                       var currentindex = 0;
                       do {
@@ -576,7 +581,7 @@ app.get('/secret', function (req, res) {
 
                         const found = topsongs_s2.some(item => item.tracks === songName);
                         const found2 = topsongs_m.some(item => item.tracks === songName);
-                        if (found==true || found2==true) { //found same song name
+                        if (found == true || found2 == true) { //found same song name
                           console.log(songName + " existed! \nSkipped!\n");
                           currentindex++;
                           continue;
@@ -638,7 +643,7 @@ app.get('/secret', function (req, res) {
 
                           } catch (error) {
                             currentindex++;
-                          // console.error(error);
+                            // console.error(error);
                           }
 
                         }
@@ -655,7 +660,7 @@ app.get('/secret', function (req, res) {
                       console.log('Something went wrong!', err);
                     }).then(function () {
                     var t1 = performance.now()
-                    console.log("Call to doSomething took " + ((t1 - t0)/1000) + " seconds.")
+                    console.log("fetch user info and tracks took " + ((t1 - t0) / 1000) + " seconds.")
                     senddata(); ////////////////////////////////////////////////////////////////////////////
                   }, function (err) {
                     console.log('Something went wrong!', err);
@@ -669,43 +674,37 @@ app.get('/secret', function (req, res) {
 
   } //end if
   else {
-    res.redirect("/error");
+    //res.redirect("/error"); uncomnnet this after finsihg debug
+    senddata(); //debug only !!1
   }
 
 
 
   function senddata() {
-
-    // console.log("topsong_m:  " + JSON.parse(topsongs_m));
-    console.log("topsong_m:  " + topsongs_m);
-
-    console.log("data sent!");
+      // var data = {"MM_API":"fc8db65ad3071d9cd1f3b2a971d61bec","USER":{"displayname":"me?ran","image":"https://i.scdn.co/image/ab6775700000ee8500f6d1d8d8b9b30a342a0414","ALBUMART":["https://i.scdn.co/image/ab67616d0000b2739b6ac98a52f62d5cb473da40","https://i.scdn.co/image/ab67616d0000b273cda2c6ad6272aea9c5811a49","https://i.scdn.co/image/ab67616d0000b2734ae1c4c5c45aabe565499163","https://i.scdn.co/image/ab67616d0000b27378f71c0d2fe34592a3c18f80","https://i.scdn.co/image/ab67616d0000b273cc2cf912462d8ae4ef856434","https://i.scdn.co/image/ab67616d0000b2733066581d697fbdee4303d685","https://i.scdn.co/image/ab67616d0000b273b52b8bb89adb452a75a042af","https://i.scdn.co/image/ab67616d0000b273466f56d5f68eec9b0866e894","https://i.scdn.co/image/ab67616d0000b2736c20c4638a558132ba95bc39","https://i.scdn.co/image/ab67616d0000b27356f4dd4f29ddc5f65c70b664","https://i.scdn.co/image/ab67616d0000b2731121a528557155240feb9273","https://i.scdn.co/image/ab67616d0000b27333a859e36fdc9a27ed86516e","https://i.scdn.co/image/ab67616d0000b27352b2a3824413eefe9e33817a","https://i.scdn.co/image/ab67616d0000b273dfb3ec8a83a71cd5bbc595e6","https://i.scdn.co/image/ab67616d0000b27390e0df2bbc53b15ea320e30e","https://i.scdn.co/image/ab67616d0000b2738fa2900c5870c43c27a2cf5e","https://i.scdn.co/image/ab67616d0000b27389c39ba1acdf33ed7acd3867","https://i.scdn.co/image/ab67616d0000b2730c923eca53e52135ffb60c5d"],"TOPSONGS":[[{"tracks":"Nervous","artist":"The Neighbourhood","artistID":484057,"trackID":145900361,"snippet":"Hush, baby, don't you say another word"},{"tracks":"Physical","artist":"Dua Lipa","artistID":33491593,"trackID":194285001,"snippet":"All night, I'll riot with you"},{"tracks":"I Wanna Be Yours","artist":"Arctic Monkeys","artistID":145181,"trackID":82923045,"snippet":"I just wanna be yours (Wanna be yours)"},{"tracks":"Sweater Weather","artist":"The Neighbourhood","artistID":484057,"trackID":35336369,"snippet":"'Cause it's too cold, woah"},{"tracks":"American Money","artist":"BØRNS","artistID":28282509,"trackID":83950112,"snippet":"So take me to the paradise"}],[{"tracks":"Take Yourself Home","artist":"Troye Sivan","artistID":14149880,"trackID":204380567,"snippet":"I'm tired of the city, scream if you're with me"},{"tracks":"Friends","artist":"Chase Atlantic","artistID":28069614,"trackID":81193551,"snippet":"All of your friends have been here for too long"},{"tracks":"Gimme Love","artist":"Joji","artistID":25755232,"trackID":202866546,"snippet":"When I'm gone, when I'm gone"},{"tracks":"Electric Love","artist":"BØRNS","artistID":28282509,"trackID":83950111,"snippet":"Baby, you're like lightning in a bottle"},{"tracks":"Style","artist":"Taylor Swift","artistID":259675,"trackID":73446913,"snippet":"And when we go crashing down we come back every time"}],[{"tracks":"everything i wanted","artist":"Billie Eilish","artistID":29247465,"trackID":187632922,"snippet":"But when I wake up, I see"},{"tracks":"Dancing With Our Hands Tied","artist":"Taylor Swift","artistID":259675,"trackID":134319912,"snippet":"Yeah, we were dancing"},{"tracks":"What A Heavenly Way To Die","artist":"Troye Sivan","artistID":14149880,"trackID":166651209,"snippet":"I wanna spend with you"},{"tracks":"Save That Shit","artist":"Lil Peep","artistID":30969919,"trackID":132750089,"snippet":"Nothin' like them other motherfuckers"},{"tracks":"Youngblood","artist":"5 Seconds of Summer","artistID":14354654,"trackID":148708644,"snippet":"Say you want me, say you want me out of your life"}]]}};
+    
+       
     var data = {
       "MM_API": `${process.env.API_KEY}`,
       "USER": {
         "displayname": `${userid}`,
         "image": `${imgurl}`,
         "ALBUMART": topalbum,
-        "TOPSONGS": [{
-            "short": topsongs_s2
-          },
-          {
-            "medium": topsongs_m
-          },
-          {
-            "long": topsongs_l
-          }
-        ]
+        "TOPSONGS": [ topsongs_s2,topsongs_m,topsongs_l]
       }
 
     };
+    
 
 
-    console.log(data);
+    // console.log(JSON.parse(data));
+    console.log(JSON.stringify(data));
     console.log(data.USER.TOPSONGS[0]);
     console.log(data.USER.TOPSONGS[1]);
     console.log(data.USER.TOPSONGS[2]);
-    res.send(data); // UNCOMMMNET THOOS
+    res.send(data);
+    
+   // res.send(JSON.parse(JSON.stringify(data))); // UNCOMMMNET THOOS
   }
 
 
