@@ -45,3 +45,8 @@ footer{
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
+
+.answer-container{
+    border: 1px solid black;
+    border-radius: 20px;
+}

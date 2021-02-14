@@ -14,6 +14,7 @@ const path = require('path');
 const {
   performance
 } = require('perf_hooks');
+const { SSL_OP_SINGLE_DH_USE } = require('constants');
 
 var loggedin = false;
 var spotifydata = [];
@@ -282,7 +283,7 @@ app.get('/secret', function (req, res) {
   var topsongs_s2 = [];
   var topsongs_m = [];
   var topsongs_l = [];
-  var debug = true; //change to false when want to debug(skip the process)
+  var debug = false; //change to false when want to debug(skip the process)
 
 
 
@@ -319,7 +320,7 @@ app.get('/secret', function (req, res) {
 
         //get user saved tracks
         spotifyApi.getMyTopTracks({
-            limit: 20,
+            limit: 50,
             offset: 0,
             time_range: 'short_term'
           })
@@ -413,56 +414,11 @@ app.get('/secret', function (req, res) {
             }
 
           })
-          /*
-                    .then(async function () {
-                      console.log("masuk 2nd async");
 
-                      for (let index = 0; index < topsongs_s2.length; index++) {
-
-                        // use try/catch for error handling
-                        try {
-                          var songName = topsongs_s2[index].tracks;
-                          var artistName = topsongs_s2[index].artist;
-
-                          // call synchronously and wait for the response
-                          const data = await music.trackSearch({
-                            q_track: songName,
-                            q_artist: artistName,
-                            f_has_lyrics: true,
-                            f_artist_id: topsongs_s2[index].artistID,
-                            s_track_rating: 'desc',
-                            s_artist_rating: 'desc',
-                            page: 1,
-                            })
-
-                          const result = await music.trackSnippet({
-                            track_id: data.message.body.track_list[0].track.track_id,
-                          })
-
-
-                          var trackID = data.message.body.track_list[0].track.track_id;
-                          var snippet = result.message.body.snippet.snippet_body
-                          console.log("tracks: "+songName+"   artist: "+artistName);
-                          console.log("artistID: " + topsongs_s2[index].artistID);
-                          console.log("trackid: "+trackID);
-                          console.log("snippet: "+snippet);
-                          
-                          topsongs_s2[index].trackID = trackID;
-                          topsongs_s2[index].snippet = snippet;
-                          console.log();
-
-                        } catch (error) {
-                          console.error(error);
-                        }
-                      }
-
-
-                    }) 
-                    /********************** MEDIUM */
           .then(async function () {
             console.log("--------------------MEDIUM TERM--------------------");
             spotifyApi.getMyTopTracks({
-                limit: 15,
+                limit: 50,
                 offset: 0,
                 time_range: 'medium_term'
               })
@@ -473,7 +429,10 @@ app.get('/secret', function (req, res) {
 
                   var songcounter = 0;
                   var currentindex = 0;
+                  var dummysongs = 0;
                   do {
+
+
                     var songName = data.body.items[currentindex].name;
                     var artistName = data.body.items[currentindex].artists[0].name;
 
@@ -484,6 +443,8 @@ app.get('/secret', function (req, res) {
                       continue;
 
                     } else {
+
+                      if(songcounter<5){
 
                       try {
 
@@ -542,10 +503,27 @@ app.get('/secret', function (req, res) {
                         currentindex++;
                         // console.error(error);
                       }
+                        }
+
+                        else{
+                          console.log("appending other remaining songs ");
+                          var obj = {};
+                          obj['tracks'] = songName;
+                          obj['artist'] = artistName;
+                          topsongs_m.push(obj);
+                          dummysongs++;
+
+                          currentindex++;
+                          console.log("tracks: "+songName+"\nartist: "+artistName);
+                          console.log("current index: " + currentindex);
+                          console.log();
+
+                        }
 
                     }
 
-                  } while (songcounter < 5 && currentindex < 15);
+                  } while (currentindex < 50 && dummysongs<10);
+
 
 
 
@@ -564,7 +542,7 @@ app.get('/secret', function (req, res) {
 
                 console.log("--------------------LONG TERM--------------------");
                 spotifyApi.getMyTopTracks({
-                    limit: 15,
+                    limit: 50,
                     offset: 0,
                     time_range: 'long_term'
                   })
@@ -575,6 +553,7 @@ app.get('/secret', function (req, res) {
 
                       var songcounter = 0;
                       var currentindex = 0;
+                      var dummysongs =0;
                       do {
                         var songName = data.body.items[currentindex].name;
                         var artistName = data.body.items[currentindex].artists[0].name;
@@ -587,6 +566,8 @@ app.get('/secret', function (req, res) {
                           continue;
 
                         } else {
+                          
+                          if(songcounter<5){
 
                           try {
 
@@ -645,10 +626,26 @@ app.get('/secret', function (req, res) {
                             currentindex++;
                             // console.error(error);
                           }
-
+                            }
+    
+                            else{
+                              console.log("appending other remaining songs ");
+                              var obj = {};
+                              obj['tracks'] = songName;
+                              obj['artist'] = artistName;
+                              topsongs_l.push(obj);
+                              dummysongs++;
+    
+                              currentindex++;
+                              console.log("tracks: "+songName+"\nartist: "+artistName);
+                              console.log("current index: " + currentindex);
+                              console.log();
+    
+                            }
+    
                         }
-
-                      } while (songcounter < 5 && currentindex < 15);
+    
+                      } while (currentindex < 50 && dummysongs<10);
 
 
 
@@ -681,9 +678,9 @@ app.get('/secret', function (req, res) {
 
 
   function senddata() {
-      // var data = {"MM_API":"fc8db65ad3071d9cd1f3b2a971d61bec","USER":{"displayname":"me?ran","image":"https://i.scdn.co/image/ab6775700000ee8500f6d1d8d8b9b30a342a0414","ALBUMART":["https://i.scdn.co/image/ab67616d0000b2739b6ac98a52f62d5cb473da40","https://i.scdn.co/image/ab67616d0000b273cda2c6ad6272aea9c5811a49","https://i.scdn.co/image/ab67616d0000b2734ae1c4c5c45aabe565499163","https://i.scdn.co/image/ab67616d0000b27378f71c0d2fe34592a3c18f80","https://i.scdn.co/image/ab67616d0000b273cc2cf912462d8ae4ef856434","https://i.scdn.co/image/ab67616d0000b2733066581d697fbdee4303d685","https://i.scdn.co/image/ab67616d0000b273b52b8bb89adb452a75a042af","https://i.scdn.co/image/ab67616d0000b273466f56d5f68eec9b0866e894","https://i.scdn.co/image/ab67616d0000b2736c20c4638a558132ba95bc39","https://i.scdn.co/image/ab67616d0000b27356f4dd4f29ddc5f65c70b664","https://i.scdn.co/image/ab67616d0000b2731121a528557155240feb9273","https://i.scdn.co/image/ab67616d0000b27333a859e36fdc9a27ed86516e","https://i.scdn.co/image/ab67616d0000b27352b2a3824413eefe9e33817a","https://i.scdn.co/image/ab67616d0000b273dfb3ec8a83a71cd5bbc595e6","https://i.scdn.co/image/ab67616d0000b27390e0df2bbc53b15ea320e30e","https://i.scdn.co/image/ab67616d0000b2738fa2900c5870c43c27a2cf5e","https://i.scdn.co/image/ab67616d0000b27389c39ba1acdf33ed7acd3867","https://i.scdn.co/image/ab67616d0000b2730c923eca53e52135ffb60c5d"],"TOPSONGS":[[{"tracks":"Nervous","artist":"The Neighbourhood","artistID":484057,"trackID":145900361,"snippet":"Hush, baby, don't you say another word"},{"tracks":"Physical","artist":"Dua Lipa","artistID":33491593,"trackID":194285001,"snippet":"All night, I'll riot with you"},{"tracks":"I Wanna Be Yours","artist":"Arctic Monkeys","artistID":145181,"trackID":82923045,"snippet":"I just wanna be yours (Wanna be yours)"},{"tracks":"Sweater Weather","artist":"The Neighbourhood","artistID":484057,"trackID":35336369,"snippet":"'Cause it's too cold, woah"},{"tracks":"American Money","artist":"BØRNS","artistID":28282509,"trackID":83950112,"snippet":"So take me to the paradise"}],[{"tracks":"Take Yourself Home","artist":"Troye Sivan","artistID":14149880,"trackID":204380567,"snippet":"I'm tired of the city, scream if you're with me"},{"tracks":"Friends","artist":"Chase Atlantic","artistID":28069614,"trackID":81193551,"snippet":"All of your friends have been here for too long"},{"tracks":"Gimme Love","artist":"Joji","artistID":25755232,"trackID":202866546,"snippet":"When I'm gone, when I'm gone"},{"tracks":"Electric Love","artist":"BØRNS","artistID":28282509,"trackID":83950111,"snippet":"Baby, you're like lightning in a bottle"},{"tracks":"Style","artist":"Taylor Swift","artistID":259675,"trackID":73446913,"snippet":"And when we go crashing down we come back every time"}],[{"tracks":"everything i wanted","artist":"Billie Eilish","artistID":29247465,"trackID":187632922,"snippet":"But when I wake up, I see"},{"tracks":"Dancing With Our Hands Tied","artist":"Taylor Swift","artistID":259675,"trackID":134319912,"snippet":"Yeah, we were dancing"},{"tracks":"What A Heavenly Way To Die","artist":"Troye Sivan","artistID":14149880,"trackID":166651209,"snippet":"I wanna spend with you"},{"tracks":"Save That Shit","artist":"Lil Peep","artistID":30969919,"trackID":132750089,"snippet":"Nothin' like them other motherfuckers"},{"tracks":"Youngblood","artist":"5 Seconds of Summer","artistID":14354654,"trackID":148708644,"snippet":"Say you want me, say you want me out of your life"}]]}};
-    
-       
+      var data = {"MM_API":"fc8db65ad3071d9cd1f3b2a971d61bec","USER":{"displayname":"me?ran","image":"https://i.scdn.co/image/ab6775700000ee8500f6d1d8d8b9b30a342a0414","ALBUMART":["https://i.scdn.co/image/ab67616d0000b2739b6ac98a52f62d5cb473da40","https://i.scdn.co/image/ab67616d0000b273cda2c6ad6272aea9c5811a49","https://i.scdn.co/image/ab67616d0000b2734ae1c4c5c45aabe565499163","https://i.scdn.co/image/ab67616d0000b27378f71c0d2fe34592a3c18f80","https://i.scdn.co/image/ab67616d0000b273cc2cf912462d8ae4ef856434","https://i.scdn.co/image/ab67616d0000b273b52b8bb89adb452a75a042af","https://i.scdn.co/image/ab67616d0000b2733066581d697fbdee4303d685","https://i.scdn.co/image/ab67616d0000b273466f56d5f68eec9b0866e894","https://i.scdn.co/image/ab67616d0000b2736c20c4638a558132ba95bc39","https://i.scdn.co/image/ab67616d0000b27356f4dd4f29ddc5f65c70b664","https://i.scdn.co/image/ab67616d0000b27333a859e36fdc9a27ed86516e","https://i.scdn.co/image/ab67616d0000b2731121a528557155240feb9273","https://i.scdn.co/image/ab67616d0000b27390e0df2bbc53b15ea320e30e","https://i.scdn.co/image/ab67616d0000b27352b2a3824413eefe9e33817a","https://i.scdn.co/image/ab67616d0000b273dfb3ec8a83a71cd5bbc595e6","https://i.scdn.co/image/ab67616d0000b2730c923eca53e52135ffb60c5d","https://i.scdn.co/image/ab67616d0000b2738fa2900c5870c43c27a2cf5e","https://i.scdn.co/image/ab67616d0000b27389c39ba1acdf33ed7acd3867"],"TOPSONGS":[[{"tracks":"Nervous","artist":"The Neighbourhood","artistID":484057,"trackID":145900361,"snippet":"Hush, baby, don't you say another word"},{"tracks":"Physical","artist":"Dua Lipa","artistID":33491593,"trackID":194285001,"snippet":"All night, I'll riot with you"},{"tracks":"I Wanna Be Yours","artist":"Arctic Monkeys","artistID":145181,"trackID":82923045,"snippet":"I just wanna be yours (Wanna be yours)"},{"tracks":"Sweater Weather","artist":"The Neighbourhood","artistID":484057,"trackID":35336369,"snippet":"'Cause it's too cold, woah"},{"tracks":"American Money","artist":"BØRNS","artistID":28282509,"trackID":83950112,"snippet":"So take me to the paradise"}],[{"tracks":"Take Yourself Home","artist":"Troye Sivan","artistID":14149880,"trackID":204380567,"snippet":"I'm tired of the city, scream if you're with me"},{"tracks":"Friends","artist":"Chase Atlantic","artistID":28069614,"trackID":81193551,"snippet":"All of your friends have been here for too long"},{"tracks":"Gimme Love","artist":"Joji","artistID":25755232,"trackID":202866546,"snippet":"When I'm gone, when I'm gone"},{"tracks":"Electric Love","artist":"BØRNS","artistID":28282509,"trackID":83950111,"snippet":"Baby, you're like lightning in a bottle"},{"tracks":"Style","artist":"Taylor Swift","artistID":259675,"trackID":73446913,"snippet":"And when we go crashing down we come back every time"},{"tracks":"Tongue Tied","artist":"Grouplove"},{"tracks":"Paramedic!","artist":"SOB X RBE"},{"tracks":"POSTERITY","artist":"Ludwig Goransson"},{"tracks":"Still Don't Know My Name","artist":"Labrinth"},{"tracks":"Right Here","artist":"Chase Atlantic"},{"tracks":"Golden","artist":"Harry Styles"},{"tracks":"As Long As You Love Me","artist":"Justin Bieber"},{"tracks":"Take Yourself Home","artist":"Troye Sivan"},{"tracks":"Weaver Ants","artist":"Epic Mountain"},{"tracks":"Dancing With Our Hands Tied","artist":"Taylor Swift"}],[{"tracks":"everything i wanted","artist":"Billie Eilish","artistID":29247465,"trackID":187632922,"snippet":"But when I wake up, I see"},{"tracks":"What A Heavenly Way To Die","artist":"Troye Sivan","artistID":14149880,"trackID":166651209,"snippet":"I wanna spend with you"},{"tracks":"Save That Shit","artist":"Lil Peep","artistID":30969919,"trackID":132750089,"snippet":"Nothin' like them other motherfuckers"},{"tracks":"Youngblood","artist":"5 Seconds of Summer","artistID":14354654,"trackID":148708644,"snippet":"Say you want me, say you want me out of your life"},{"tracks":"FOOLS","artist":"Troye Sivan","artistID":14149880,"trackID":113740102,"snippet":"Only fools do what I do"},{"tracks":"Swan Song - From the Motion Picture \"Alita: Battle Angel\"","artist":"Dua Lipa"},{"tracks":"Goodbyes (feat. Young Thug)","artist":"Post Malone"},{"tracks":"Delicate","artist":"Taylor Swift"},{"tracks":"TALK ME DOWN","artist":"Troye Sivan"},{"tracks":"Flames (feat. Ruel)","artist":"SG Lewis"},{"tracks":"Myself","artist":"Post Malone"},{"tracks":"Lie To Me (feat. Julia Michaels)","artist":"5 Seconds of Summer"},{"tracks":"Cruel Summer","artist":"Taylor Swift"},{"tracks":"It Will Rain","artist":"Bruno Mars"},{"tracks":"My My My!","artist":"Troye Sivan"}]]}};
+
+      /*
     var data = {
       "MM_API": `${process.env.API_KEY}`,
       "USER": {
@@ -696,15 +693,17 @@ app.get('/secret', function (req, res) {
     };
     
 
-
+    
     // console.log(JSON.parse(data));
-    console.log(JSON.stringify(data));
     console.log(data.USER.TOPSONGS[0]);
     console.log(data.USER.TOPSONGS[1]);
     console.log(data.USER.TOPSONGS[2]);
     res.send(data);
+
+    */
     
-   // res.send(JSON.parse(JSON.stringify(data))); // UNCOMMMNET THOOS
+    
+    res.send(JSON.parse(JSON.stringify(data))); // UNCOMMMNET THOOS
   }
 
 
