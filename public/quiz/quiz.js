@@ -71,7 +71,7 @@ $(document).ready(function () {
             obj['choice3'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks,userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];
             obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];
             obj['answer'] = 1;
-            quiz.push(obj);  x++; console.log(numbers); break;}
+            quiz.push(obj);  x++; break;}
 
             case 2: {
                 var numbers = [];
@@ -162,11 +162,6 @@ $(document).ready(function () {
 
 
     getAPI();
-
-
-
-
-    console.log("userprogress: " + userprogress);
 
     function getAPI() {
 
