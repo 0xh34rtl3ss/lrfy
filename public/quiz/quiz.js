@@ -1,6 +1,7 @@
 var userdata; // stored user data in JSON , call this var to access user data
 var userprogress = 0;
 var quiz = [];
+var usercorrect = 0;
 
 
 
@@ -15,20 +16,22 @@ $(document).ready(function () {
 
     function renderQuiz(progress) {
 
+        
+
         $('#answered').text(`${userprogress+1} / 10`);
         $(".lyrics-box").html(`<p>${quiz[progress].question}</p> <br>`);
 
-        $('.choice-track1').text(quiz[progress].choice1[0]);
-        $('.choice-artist1').text(quiz[progress].choice1[1]);
+        $('#choice-track1').text(quiz[progress].choice1[0]);
+        $('#choice-artist1').text(quiz[progress].choice1[1]);
 
-        $('.choice-track2').text(quiz[progress].choice2[0]);
-        $('.choice-artist2').text(quiz[progress].choice2[1]);
+        $('#choice-track2').text(quiz[progress].choice2[0]);
+        $('#choice-artist2').text(quiz[progress].choice2[1]);
 
-        $('.choice-track3').text(quiz[progress].choice3[0]);
-        $('.choice-artist3').text(quiz[progress].choice3[1]);
+        $('#choice-track3').text(quiz[progress].choice3[0]);
+        $('#choice-artist3').text(quiz[progress].choice3[1]);
 
-        $('.choice-track4').text(quiz[progress].choice4[0]);
-        $('.choice-artist4').text(quiz[progress].choice4[1]);
+        $('#choice-track4').text(quiz[progress].choice4[0]);
+        $('#choice-artist4').text(quiz[progress].choice4[1]);
 
 
     }
@@ -53,10 +56,10 @@ $(document).ready(function () {
             do{
                 var obj1 = {};
                 var no1 = getRandomInt(1,2);
-                var no2 = getRandomInt(5,14);
+                var no2 = getRandomInt(5,19);
                 obj1['no1'] = no1;
                 obj1['no2'] = no2;
-                const found2 = numbers.some(item => item.no1 === no1 && item.no2 === no2 && no1==num1 && no2==num2);
+                const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
                 if(found2){
                 }
                 else{
@@ -78,10 +81,10 @@ $(document).ready(function () {
                 do{
                     var obj1 = {};
                     var no1 = getRandomInt(1,2);
-                    var no2 = getRandomInt(5,14);
+                    var no2 = getRandomInt(5,19);
                     obj1['no1'] = no1;
                     obj1['no2'] = no2;
-                    const found2 = numbers.some(item => item.no1 === no1 && item.no2 === no2 && no1==num1 && no2==num2);
+                    const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
                     if(found2){
                     }
                     else{
@@ -95,17 +98,17 @@ $(document).ready(function () {
             obj['choice3'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks,userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];  
             obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];  
             obj['answer'] = 2;
-            quiz.push(obj); x++; break;}
+            quiz.push(obj);  x++; break;}
 
             case 3: {  
                 var numbers = [];
                 do{
                     var obj1 = {};
                     var no1 = getRandomInt(1,2);
-                    var no2 = getRandomInt(5,14);
+                    var no2 = getRandomInt(5,19);
                     obj1['no1'] = no1;
                     obj1['no2'] = no2;
-                    const found2 = numbers.some(item => item.no1 === no1 && item.no2 === no2 && no1==num1 && no2==num2);
+                    const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
                     if(found2){
                     }
                     else{
@@ -119,17 +122,17 @@ $(document).ready(function () {
             obj['choice3'] = [userdata.USER.TOPSONGS[num1][num2].tracks,userdata.USER.TOPSONGS[num1][num2].artist];
             obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];  
             obj['answer'] = 3;
-            quiz.push(obj); x++; break;}
+            quiz.push(obj);  x++; break;}
 
             case 4: {
                 var numbers = [];
                 do{
                     var obj1 = {};
                     var no1 = getRandomInt(1,2);
-                    var no2 = getRandomInt(5,14);
+                    var no2 = getRandomInt(5,19);
                     obj1['no1'] = no1;
                     obj1['no2'] = no2;
-                    const found2 = numbers.some(item => item.no1 === no1 && item.no2 === no2 && no1==num1 && no2==num2);
+                    const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
                     if(found2){
                     }
                     else{
@@ -143,13 +146,26 @@ $(document).ready(function () {
             obj['choice3'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];  
             obj['choice4'] = [userdata.USER.TOPSONGS[num1][num2].tracks,userdata.USER.TOPSONGS[num1][num2].artist];
             obj['answer'] = 4;
-            quiz.push(obj); x++; break;}
+            quiz.push(obj);  x++; break;}
         }
     }
     }while(x<10);
 
         console.log(quiz);
 
+
+    }
+
+    function checkAnswer(ans,progress){
+
+        if(quiz[progress].answer == ans){
+            console.log("true ans")
+            return 1;
+        }
+        else{
+            console.log("wrong ans")
+        }
+        return 0;
 
     }
 
@@ -198,8 +214,8 @@ $(document).ready(function () {
 
                     console.log("aborted AJAX to webserver-api");
 
-                    // $('#imgg').append(`<img src=${userdata.USER.image} alt="user_pic">`);
-                    // $('#username').text(userdata.USER.displayname);
+                     $('#imgg').append(`<img src=${userdata.USER.image} alt="user_pic">`);
+                     $('#username').text(userdata.USER.displayname);
                     // for (let index = 0; index < userdata.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on..
                     //     $('.albumcover').append(`<img src=${userdata.USER.ALBUMART[index]} alt=${index} width="200" height="200"> `); //enter width and height here
                     // }
@@ -229,28 +245,32 @@ $(document).ready(function () {
 
 
     /********* START OF FRONTEND */
-    $('#button').click(function () {
 
-        var userans = $('input[name="group1"]:checked').val(); //get user answer 
+    $('input[type="radio"]').click(function () {
 
+        var userans = $('input[name="radio"]:checked').val();
+        usercorrect += checkAnswer(userans,userprogress);
 
-
-        console.log("userprogress: " + userprogress);
-        console.log(userans);
 
         if (userprogress < 9) {
             userprogress++;
             renderQuiz(userprogress);
         } else {
-
-            document.cookie = "score=10; samesite=lax; path=/";
+            document.cookie = `score=${usercorrect}; samesite=lax; path=/`;
+            document.cookie = `name=${userdata.USER.displayname}; samesite=lax; path=/`;
             window.location.href = '/result';
 
         }
-
+        console.log("userans: "+userans);
         console.log(userprogress);
+        console.log("usercorrect: "+usercorrect);
         return;
+
+
+
     });
+
+
 
 
 

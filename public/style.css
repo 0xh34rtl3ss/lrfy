@@ -49,4 +49,27 @@ footer{
 .answer-container{
     border: 1px solid black;
     border-radius: 20px;
+    margin: 20px;
+}
+
+ul {
+    list-style: none;
+}
+li {
+    width: 30%;
+    display: inline-block;
+    margin: 20px;
+    border: 1px solid black;
+    border-radius: 25px;
+
+}
+input {
+    visibility:hidden;
+}
+label {
+    cursor: pointer;
+    text-align: center;
+}
+input:checked + label {
+    background: red;
 }
