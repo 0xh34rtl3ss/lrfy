@@ -669,7 +669,7 @@ app.get('/secret', function (req, res) {
 
   } //end if
   else {
-    //res.redirect("/error"); uncomnnet this after finsihg debug
+    res.redirect("/error"); // uncomnnet this after finsihg debug******************************************************
     senddata(); //debug only !!1
   }
 
