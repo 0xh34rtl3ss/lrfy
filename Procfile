@@ -1,1 +1,1 @@
-web: node server.js >> applog.txt
+web: node server.js 

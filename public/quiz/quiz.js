@@ -55,7 +55,7 @@ $(document).ready(function () {
                 var numbers = [];
             do{
                 var obj1 = {};
-                var no1 = getRandomInt(1,2);
+                var no1 = getRandomInt(0,2);
                 var no2 = getRandomInt(5,19);
                 obj1['no1'] = no1;
                 obj1['no2'] = no2;
@@ -80,7 +80,7 @@ $(document).ready(function () {
                 var numbers = [];
                 do{
                     var obj1 = {};
-                    var no1 = getRandomInt(1,2);
+                    var no1 = getRandomInt(0,2);
                     var no2 = getRandomInt(5,19);
                     obj1['no1'] = no1;
                     obj1['no2'] = no2;
@@ -104,7 +104,7 @@ $(document).ready(function () {
                 var numbers = [];
                 do{
                     var obj1 = {};
-                    var no1 = getRandomInt(1,2);
+                    var no1 = getRandomInt(0,2);
                     var no2 = getRandomInt(5,19);
                     obj1['no1'] = no1;
                     obj1['no2'] = no2;
@@ -128,7 +128,7 @@ $(document).ready(function () {
                 var numbers = [];
                 do{
                     var obj1 = {};
-                    var no1 = getRandomInt(1,2);
+                    var no1 = getRandomInt(0,2);
                     var no2 = getRandomInt(5,19);
                     obj1['no1'] = no1;
                     obj1['no2'] = no2;
