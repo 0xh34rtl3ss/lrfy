@@ -38,8 +38,8 @@ const scopes = [
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
-  //redirectUri: 'http://localhost:5500/callback'
+  //redirectUri: 'https://lrfy-beta.herokuapp.com/callback'
+  redirectUri: 'http://localhost:5500/callback'
 });
 
 //starting express module
