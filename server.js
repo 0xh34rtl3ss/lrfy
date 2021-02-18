@@ -701,7 +701,7 @@ app.get('/secret', function (req, res) {
 
     };
     
-    
+    console.log(data);
 
     //TO VIEW EVERY TRACKS SAVED
     // for (var index = 0; index < 3; index++) {
