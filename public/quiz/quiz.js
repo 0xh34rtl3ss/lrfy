@@ -6,11 +6,90 @@ var time0;
 var currtime;
 var time1;
 
+//Define vars to hold time values
+let seconds = 0;
+let minutes = 0;
+
+
+//Define vars to hold "display" value
+let displaySeconds = 0;
+let displayMinutes = 0;
+
+
+//Define var to hold setInterval() function
+let interval = null;
+
+//Define var to hold stopwatch status
+let status = "stopped";
+
 
 
 
 
 $(document).ready(function () {
+
+
+
+    //Stopwatch function (logic to determine when to increment next value, etc.)
+    function stopWatch() {
+
+        seconds++;
+
+        //Logic to determine when to increment next value
+        if (seconds / 60 === 1) {
+            seconds = 0;
+            minutes++;
+
+
+        }
+
+        //If seconds/minutes/hours are only one digit, add a leading 0 to the value
+        if (seconds < 10) {
+            displaySeconds = "0" + seconds.toString();
+        } else {
+            displaySeconds = seconds;
+        }
+
+        if (minutes < 10) {
+            displayMinutes = "0" + minutes.toString();
+        } else {
+            displayMinutes = minutes;
+        }
+
+
+        //Display updated time values to user
+        document.getElementById("display").innerHTML = displayMinutes + ":" + displaySeconds;
+
+    }
+
+
+
+    function startStop() {
+
+        if (status === "stopped") {
+
+            //Start the stopwatch (by calling the setInterval() function)
+            interval = window.setInterval(stopWatch, 1000);
+            status = "started";
+
+        } else {
+
+            window.clearInterval(interval);
+            status = "stopped";
+
+        }
+
+    }
+
+    //Function to reset the stopwatch
+    function reset() {
+
+        window.clearInterval(interval);
+        seconds = 0;
+        minutes = 0;
+        document.getElementById("display").innerHTML = "00:00";
+
+    }
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -19,8 +98,8 @@ $(document).ready(function () {
 
     function renderQuiz(progress) {
 
-        
-        
+
+
         $('#answered').text(`${userprogress+1} / 10`);
         $(".lyrics-box").html(`<p>${quiz[progress].question}</p> <br>`);
 
@@ -40,132 +119,134 @@ $(document).ready(function () {
     }
 
     function generateQuiz() {
-        var x=0;
-        do{
-        var trueans = getRandomInt(1,4);
-       // var trueans = 1;
-        var num1 = getRandomInt(0,2);
-        var num2 = getRandomInt(0,4);
-        const found = quiz.some(item => item.question === userdata.USER.TOPSONGS[num1][num2].snippet);
-        if(found){
-            continue;
-        }
-        else{
-        
-        var obj = {};
-        switch(trueans){
-            case 1: {
-                var numbers = [];
-            do{
-                var obj1 = {};
-                var no1 = getRandomInt(0,2);
-                var no2 = getRandomInt(5,19);
-                obj1['no1'] = no1;
-                obj1['no2'] = no2;
-                const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
-                if(found2){
+        var x = 0;
+        do {
+            var trueans = getRandomInt(1, 4);
+            // var trueans = 1;
+            var num1 = getRandomInt(0, 2);
+            var num2 = getRandomInt(0, 4);
+            const found = quiz.some(item => item.question === userdata.USER.TOPSONGS[num1][num2].snippet);
+            if (found) {
+                continue;
+            } else {
+
+                var obj = {};
+                switch (trueans) {
+                    case 1: {
+                        var numbers = [];
+                        do {
+                            var obj1 = {};
+                            var no1 = getRandomInt(0, 2);
+                            var no2 = getRandomInt(5, 19);
+                            obj1['no1'] = no1;
+                            obj1['no2'] = no2;
+                            const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1 == num1 && no2 == num2));
+                            if (found2) {} else {
+                                numbers.push(obj1);
+                            }
+                        } while (numbers.length < 3);
+
+
+                        obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
+                        obj['choice1'] = [userdata.USER.TOPSONGS[num1][num2].tracks, userdata.USER.TOPSONGS[num1][num2].artist];
+                        obj['choice2'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks, userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];
+                        obj['choice3'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks, userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];
+                        obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks, userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];
+                        obj['answer'] = 1;
+                        quiz.push(obj);
+                        x++;
+                        break;
+                    }
+
+                    case 2: {
+                        var numbers = [];
+                        do {
+                            var obj1 = {};
+                            var no1 = getRandomInt(0, 2);
+                            var no2 = getRandomInt(5, 19);
+                            obj1['no1'] = no1;
+                            obj1['no2'] = no2;
+                            const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1 == num1 && no2 == num2));
+                            if (found2) {} else {
+                                numbers.push(obj1);
+                            }
+                        } while (numbers.length < 3);
+
+                        obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
+                        obj['choice1'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks, userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];
+                        obj['choice2'] = [userdata.USER.TOPSONGS[num1][num2].tracks, userdata.USER.TOPSONGS[num1][num2].artist];
+                        obj['choice3'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks, userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];
+                        obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks, userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];
+                        obj['answer'] = 2;
+                        quiz.push(obj);
+                        x++;
+                        break;
+                    }
+
+                    case 3: {
+                        var numbers = [];
+                        do {
+                            var obj1 = {};
+                            var no1 = getRandomInt(0, 2);
+                            var no2 = getRandomInt(5, 19);
+                            obj1['no1'] = no1;
+                            obj1['no2'] = no2;
+                            const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1 == num1 && no2 == num2));
+                            if (found2) {} else {
+                                numbers.push(obj1);
+                            }
+                        } while (numbers.length < 3);
+
+                        obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
+                        obj['choice1'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks, userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];
+                        obj['choice2'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks, userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];
+                        obj['choice3'] = [userdata.USER.TOPSONGS[num1][num2].tracks, userdata.USER.TOPSONGS[num1][num2].artist];
+                        obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks, userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];
+                        obj['answer'] = 3;
+                        quiz.push(obj);
+                        x++;
+                        break;
+                    }
+
+                    case 4: {
+                        var numbers = [];
+                        do {
+                            var obj1 = {};
+                            var no1 = getRandomInt(0, 2);
+                            var no2 = getRandomInt(5, 19);
+                            obj1['no1'] = no1;
+                            obj1['no2'] = no2;
+                            const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1 == num1 && no2 == num2));
+                            if (found2) {} else {
+                                numbers.push(obj1);
+                            }
+                        } while (numbers.length < 3);
+
+                        obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
+                        obj['choice1'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks, userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];
+                        obj['choice2'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks, userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];
+                        obj['choice3'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks, userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];
+                        obj['choice4'] = [userdata.USER.TOPSONGS[num1][num2].tracks, userdata.USER.TOPSONGS[num1][num2].artist];
+                        obj['answer'] = 4;
+                        quiz.push(obj);
+                        x++;
+                        break;
+                    }
                 }
-                else{
-                    numbers.push(obj1);
-                }
-            }while(numbers.length < 3);
-            
-            
-            obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
-            obj['choice1'] = [userdata.USER.TOPSONGS[num1][num2].tracks,userdata.USER.TOPSONGS[num1][num2].artist];
-            obj['choice2'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks,userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];  
-            obj['choice3'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks,userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];
-            obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];
-            obj['answer'] = 1;
-            quiz.push(obj);  x++; break;}
-
-            case 2: {
-                var numbers = [];
-                do{
-                    var obj1 = {};
-                    var no1 = getRandomInt(0,2);
-                    var no2 = getRandomInt(5,19);
-                    obj1['no1'] = no1;
-                    obj1['no2'] = no2;
-                    const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
-                    if(found2){
-                    }
-                    else{
-                        numbers.push(obj1);
-                    }
-                }while(numbers.length < 3);
-
-            obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
-            obj['choice1'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks,userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];  
-            obj['choice2'] = [userdata.USER.TOPSONGS[num1][num2].tracks,userdata.USER.TOPSONGS[num1][num2].artist];
-            obj['choice3'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks,userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];  
-            obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];  
-            obj['answer'] = 2;
-            quiz.push(obj);  x++; break;}
-
-            case 3: {  
-                var numbers = [];
-                do{
-                    var obj1 = {};
-                    var no1 = getRandomInt(0,2);
-                    var no2 = getRandomInt(5,19);
-                    obj1['no1'] = no1;
-                    obj1['no2'] = no2;
-                    const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
-                    if(found2){
-                    }
-                    else{
-                        numbers.push(obj1);
-                    }
-                }while(numbers.length < 3);   
-
-            obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
-            obj['choice1'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks,userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];  
-            obj['choice2'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks,userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];  
-            obj['choice3'] = [userdata.USER.TOPSONGS[num1][num2].tracks,userdata.USER.TOPSONGS[num1][num2].artist];
-            obj['choice4'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];  
-            obj['answer'] = 3;
-            quiz.push(obj);  x++; break;}
-
-            case 4: {
-                var numbers = [];
-                do{
-                    var obj1 = {};
-                    var no1 = getRandomInt(0,2);
-                    var no2 = getRandomInt(5,19);
-                    obj1['no1'] = no1;
-                    obj1['no2'] = no2;
-                    const found2 = numbers.some(item => (item.no1 === no1 && item.no2 === no2) || (no1==num1 && no2==num2));
-                    if(found2){
-                    }
-                    else{
-                        numbers.push(obj1);
-                    }
-                }while(numbers.length < 3);
-
-            obj['question'] = userdata.USER.TOPSONGS[num1][num2].snippet;
-            obj['choice1'] = [userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].tracks,userdata.USER.TOPSONGS[numbers[0].no1][numbers[0].no2].artist];  
-            obj['choice2'] = [userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].tracks,userdata.USER.TOPSONGS[numbers[1].no1][numbers[1].no2].artist];  
-            obj['choice3'] = [userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].tracks,userdata.USER.TOPSONGS[numbers[2].no1][numbers[2].no2].artist];  
-            obj['choice4'] = [userdata.USER.TOPSONGS[num1][num2].tracks,userdata.USER.TOPSONGS[num1][num2].artist];
-            obj['answer'] = 4;
-            quiz.push(obj);  x++; break;}
-        }
-    }
-    }while(x<10);
+            }
+        } while (x < 10);
 
         console.log(quiz);
 
 
     }
 
-    function checkAnswer(ans,progress){
+    function checkAnswer(ans, progress) {
 
-        if(quiz[progress].answer == ans){
+        if (quiz[progress].answer == ans) {
             console.log("true ans")
             return 1;
-        }
-        else{
+        } else {
             console.log("wrong ans")
         }
         return 0;
@@ -199,7 +280,9 @@ $(document).ready(function () {
                 $('.content').show();
                 generateQuiz();
                 renderQuiz(userprogress);
+                reset();
                 time0 = performance.now();
+                startStop();
 
 
             },
@@ -218,8 +301,8 @@ $(document).ready(function () {
 
                     console.log("aborted AJAX to webserver-api");
 
-                     $('#imgg').append(`<img src=${userdata.USER.image} alt="user_pic">`);
-                     $('#username').text(userdata.USER.displayname);
+                    $('#imgg').append(`<img src=${userdata.USER.image} alt="user_pic">`);
+                    $('#username').text(userdata.USER.displayname);
                     // for (let index = 0; index < userdata.USER.ALBUMART.length; index++) { //[0] is the the most played songs , and so on..
                     //     $('.albumcover').append(`<img src=${userdata.USER.ALBUMART[index]} alt=${index} width="200" height="200"> `); //enter width and height here
                     // }
@@ -253,13 +336,14 @@ $(document).ready(function () {
     $('input[type="radio"]').click(function () {
 
         var userans = $('input[name="radio"]:checked').val();
-        usercorrect += checkAnswer(userans,userprogress);
+        usercorrect += checkAnswer(userans, userprogress);
 
 
         if (userprogress < 9) {
             userprogress++;
             renderQuiz(userprogress);
         } else {
+            reset();
             time1 = performance.now();
 
             document.cookie = `score=${usercorrect}; samesite=lax; path=/`;
@@ -268,9 +352,9 @@ $(document).ready(function () {
             window.location.href = '/result';
 
         }
-        console.log("userans: "+userans);
+        console.log("userans: " + userans);
         console.log(userprogress);
-        console.log("usercorrect: "+usercorrect);
+        console.log("usercorrect: " + usercorrect);
         return;
 
 
