@@ -268,7 +268,9 @@ app.get('/secret', function (req, res) {
   var topsongs_l = [];
   var debug = true; //change to false when want to debug(skip the process)
 
-
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
 
   /*
@@ -301,10 +303,11 @@ app.get('/secret', function (req, res) {
         console.log('Something went wrong!', err);
       }).then(async function () {
 
-        console.log("--------------------SHORT TERM--------------------");
+        var offset = getRandomInt(20, 30);
+        console.log("--------------------SHORT TERM--------------------  offset: "+offset);
         spotifyApi.getMyTopTracks({
             limit: 50,
-            offset: 0,
+            offset: offset,
             time_range: 'short_term'
           })
           .then(async function (data) {
@@ -370,7 +373,7 @@ app.get('/secret', function (req, res) {
 
                     currentindex++;
                     songcounter++;
-                    console.log("songcounter: " + songcounter);
+                    console.log("#songcounter: " + songcounter + "    current index: "+currentindex);
                     console.log();
 
 
@@ -399,7 +402,7 @@ app.get('/secret', function (req, res) {
 
                     currentindex++;
                     console.log("tracks: "+songName+"\nartist: "+artistName);
-                    console.log("current index: " + currentindex);
+                    console.log("#songcounter: " + songcounter + "    current index: "+currentindex);
                     console.log();
 
                   }
@@ -417,10 +420,11 @@ app.get('/secret', function (req, res) {
           })
 
           .then(async function () {
-            console.log("--------------------MEDIUM TERM--------------------");
+            var offset = getRandomInt(30, 45);
+            console.log("--------------------MEDIUM TERM--------------------  offset: "+offset);
             spotifyApi.getMyTopTracks({
                 limit: 50,
-                offset: 0,
+                offset: offset,
                 time_range: 'medium_term'
               })
 
@@ -487,7 +491,7 @@ app.get('/secret', function (req, res) {
 
                           currentindex++;
                           songcounter++;
-                          console.log("songcounter: " + songcounter);
+                          console.log("#songcounter: " + songcounter + "    current index: "+currentindex);
                           console.log();
 
 
@@ -516,7 +520,7 @@ app.get('/secret', function (req, res) {
 
                           currentindex++;
                           console.log("tracks: "+songName+"\nartist: "+artistName);
-                          console.log("current index: " + currentindex);
+                          console.log("#songcounter: " + songcounter + "    current index: "+currentindex);
                           console.log();
 
                         }
@@ -541,11 +545,11 @@ app.get('/secret', function (req, res) {
                 })
               /**************** LONG  */
               .then(async function () {
-
-                console.log("--------------------LONG TERM--------------------");
+                var offset = getRandomInt(25, 49);
+                console.log("--------------------LONG TERM--------------------  offset: "+offset);
                 spotifyApi.getMyTopTracks({
                     limit: 50,
-                    offset: 0,
+                    offset: offset,
                     time_range: 'long_term'
                   })
 
@@ -611,7 +615,7 @@ app.get('/secret', function (req, res) {
 
                               currentindex++;
                               songcounter++;
-                              console.log("songcounter: " + songcounter);
+                              console.log("#songcounter: " + songcounter + "    current index: "+currentindex);
                               console.log();
 
 
@@ -640,7 +644,7 @@ app.get('/secret', function (req, res) {
     
                               currentindex++;
                               console.log("tracks: "+songName+"\nartist: "+artistName);
-                              console.log("current index: " + currentindex);
+                              console.log("#songcounter: " + songcounter + "    current index: "+currentindex);
                               console.log();
     
                             }
@@ -674,8 +678,7 @@ app.get('/secret', function (req, res) {
 
   } //end if
   else {
-    res.redirect("/error"); // uncomnnet this after finsihg debug******************************************************
-    senddata(); //debug only !!1
+    res.send("data");
   }
 
 

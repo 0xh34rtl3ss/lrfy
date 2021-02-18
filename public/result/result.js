@@ -16,8 +16,10 @@ $(document).ready(function (){
 
     var score = getCookie("score");
     var name = getCookie("name");
+    var time = getCookie("time");
+
         $('#ur-name').text(`Not bad, ${name}`);
-        $('#ur-result').text(`${score}/10`);
+        $('#ur-result').text(`Score: ${score}/10\nTime: ${time} seconds`);
    //link = https://pbs.twimg.com/media/EtiMLVdUcAAOkm5?format=jpg&name=medium
    var twiiterimg = `pic.twitter.com/GOzFUTC7Rl`;
     var link = `https://twitter.com/share?url=http://lrfy-beta.herokuapp.com&text=How%20well%20do%20you%20know%20your%20songs?%20I%20scored%20${score}/10%20${twiiterimg}%20&hashtags=lrfy`;

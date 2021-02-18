@@ -2,6 +2,9 @@ var userdata; // stored user data in JSON , call this var to access user data
 var userprogress = 0;
 var quiz = [];
 var usercorrect = 0;
+var time0;
+var currtime;
+var time1;
 
 
 
@@ -17,7 +20,7 @@ $(document).ready(function () {
     function renderQuiz(progress) {
 
         
-
+        
         $('#answered').text(`${userprogress+1} / 10`);
         $(".lyrics-box").html(`<p>${quiz[progress].question}</p> <br>`);
 
@@ -196,6 +199,7 @@ $(document).ready(function () {
                 $('.content').show();
                 generateQuiz();
                 renderQuiz(userprogress);
+                time0 = performance.now();
 
 
             },
@@ -256,8 +260,11 @@ $(document).ready(function () {
             userprogress++;
             renderQuiz(userprogress);
         } else {
+            time1 = performance.now();
+
             document.cookie = `score=${usercorrect}; samesite=lax; path=/`;
             document.cookie = `name=${userdata.USER.displayname}; samesite=lax; path=/`;
+            document.cookie = `time=${(time1-time0)/1000}; samesite=lax; path=/`;
             window.location.href = '/result';
 
         }
