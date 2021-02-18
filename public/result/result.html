@@ -10,33 +10,66 @@
     <meta name="twitter:creator" content="@immerann">
     <meta name="twitter:title" content="How well do you know your songs?">
     <meta name="twitter:description" content="Guess the lyrics of your own-liked-songs from @Spotify">
-    <meta name="twitter:image"content="http://lrfy-beta.herokuapp.com/img/lando.jpg">
+    <meta name="twitter:image" content="http://lrfy-beta.herokuapp.com/img/lando.jpg">
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
     <script src="result.js"></script>
-    <script src="../../node_modules/dom-to-image/dist/dom-to-image.min.js"></script>
+    <script src="dom-to-image.js"></script>
+    <script src="FileSaver.js"></script>
+
     <link rel="shortcut icon" href="#">
     <title>lrfy.</title>
 </head>
 
 <body>
     <h1>Result</h1>
-    <div class="share-card">
-    <h1 id="ur-name"></h1>
-    <h1 id="ur-result"></h1> 
 
-    </div>
+    <div class="share-card" id="savethis" >
+        <!-- CLASS THT WILL BE RENDER TO PNG-->
+        <h1 id="ur-name"></h1>
+        <h1 id="ur-result"></h1>
+        <br><br><br>
+
+    </div> <!-- END CLASS THT WILL BE SAVE TO PNG -->
 
 
 
     <div class="share">
 
-        
+        <a id="shr" href="/">Try Again</a>
+        <button id="save">Save your result</button>
+
     </div>
 
 
 
+    <script>
+        var Background = "../img/lando.jpg";
+
+        $('#save').click(function () {
+            domtoimage.toBlob(document.getElementById('savethis'), {
+                    style: {
+                        backgroundImage: "url(" + Background + ")",
+                        backgroundPosition: 'center',
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                        alignItems: "center",
+                        borderTop: '4px solid red',
+                        borderBottom: '4px solid red',
+                        borderLeft: '4px solid red',
+                        borderRight: '4px solid red'
+                    },
+                    height: 285,
+                    width: 507
+                })
+                .then(function (blob) {
+                    window.saveAs(blob, 'my-node.png');
+                });
+
+        })
+    </script>
 </body>
 
 </html>

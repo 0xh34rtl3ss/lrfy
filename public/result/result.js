@@ -26,16 +26,16 @@ $(document).ready(function (){
     var minutes = Math.floor(time / 60);
     var seconds = time - minutes * 60;
 
+
     
     var finalTime = str_pad_left(minutes,'0',2)+':'+str_pad_left(seconds,'0',2);
 
-
         $('#ur-name').text(`Not bad, ${name}`);
         $('#ur-result').text(`Score: ${score}/10\nTime: ${finalTime} minutes`);
-   //link = https://pbs.twimg.com/media/EtiMLVdUcAAOkm5?format=jpg&name=medium
    var twiiterimg = `pic.twitter.com/GOzFUTC7Rl`;
     var link = `https://twitter.com/share?url=http://lrfy-beta.herokuapp.com&text=How%20well%20do%20you%20know%20your%20songs?%20I%20scored%20${score}/10%20${twiiterimg}%20&hashtags=lrfy`;
-    var link2 = 
+
+
     $('.share').append(`<a target="_blank" id="shr" href="${link}">Share to twitter</a> <br>`);
 
     var text_ws = 
@@ -47,7 +47,7 @@ https://lrfy-beta.herokuapp.com/`;
 
     $('.share').append(`<a target="_blank" href="whatsapp://send?text=${encodeURIComponent(text_ws)}">Share to WhatsApp</a> <br>`);
 
-    $('.share').append(`<a id="shr" href="/">Try Again</a>`);
+
 
 
 
