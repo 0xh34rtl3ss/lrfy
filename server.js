@@ -266,7 +266,7 @@ app.get('/secret', function (req, res) {
   var topsongs_s2 = [];
   var topsongs_m = [];
   var topsongs_l = [];
-  var debug = false; //change to false when want to debug(skip the process)
+  var debug = true; //change to false when want to debug(skip the process)
 
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -678,8 +678,8 @@ app.get('/secret', function (req, res) {
 
   } //end if
   else {
-    senddata();
-    //res.send("data"); uncommment this after finish debug
+    //senddata();
+    res.send("data"); //uncommment this after finish debug
   }
 
 
