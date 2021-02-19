@@ -671,8 +671,9 @@ app.get('/secret', function (req, res) {
                     var t1 = performance.now()
                     console.log("fetch user info and tracks took " + ((t1 - t0) / 1000) + " seconds.")
 
-                    console.log(topsongs_s.length+" " +topsongs_m.length+" "+ topsongs_l.length)
-                    if(topsongs_s.length==20 && topsongs_m==20 && topsongs_l==20){
+
+                    if(topsongs_s.length==20 && topsongs_m.length==20 && topsongs_l.length==20){
+                      console.log("all data sucessfully retrieved")
                       senddata();
                     }
                     else{
