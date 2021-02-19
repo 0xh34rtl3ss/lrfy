@@ -303,7 +303,7 @@ app.get('/secret', function (req, res) {
         console.log('Something went wrong!', err);
       }).then(async function () {
 
-        var offset = getRandomInt(20, 30);
+        var offset =  getRandomInt(20, 30);
         console.log("--------------------SHORT TERM--------------------  offset: "+offset);
         spotifyApi.getMyTopTracks({
             limit: 50,
@@ -320,6 +320,8 @@ app.get('/secret', function (req, res) {
 
             }
 
+            
+
 
             var songcounter = 0;
             var currentindex = 0;
@@ -335,10 +337,12 @@ app.get('/secret', function (req, res) {
 
                 try {
 
+
                   const data0 = await music.artistSearch({
                     q_artist: artistName, //pass the artist name 
                     page: 1
                   });
+
 
                   var artist_ID = data0.message.body.artist_list[0].artist.artist_id;
 
@@ -383,12 +387,11 @@ app.get('/secret', function (req, res) {
                     currentindex++;
                     console.log(data0.message.body.artist_list[0].artist.artist_name.toLowerCase() + " != " + artistName.toLowerCase());
                   }
-
+                  
 
 
                 } catch (error) {
                   currentindex++;
-                  // console.error(error);
                       }
                   }
 
@@ -420,7 +423,7 @@ app.get('/secret', function (req, res) {
           })
 
           .then(async function () {
-            var offset = getRandomInt(30, 45);
+            var offset =  getRandomInt(30, 45);
             console.log("--------------------MEDIUM TERM--------------------  offset: "+offset);
             spotifyApi.getMyTopTracks({
                 limit: 50,
@@ -545,7 +548,7 @@ app.get('/secret', function (req, res) {
                 })
               /**************** LONG  */
               .then(async function () {
-                var offset = getRandomInt(25, 49);
+                var offset =  getRandomInt(25, 49);
                 console.log("--------------------LONG TERM--------------------  offset: "+offset);
                 spotifyApi.getMyTopTracks({
                     limit: 50,
@@ -663,9 +666,20 @@ app.get('/secret', function (req, res) {
                     function (err) {
                       console.log('Something went wrong!', err);
                     }).then(function () {
+
+
                     var t1 = performance.now()
                     console.log("fetch user info and tracks took " + ((t1 - t0) / 1000) + " seconds.")
-                    senddata(); ////////////////////////////////////////////////////////////////////////////
+
+
+                    if(topsongs_s.length==20 && topsongs_m==20 && topsongs_l==20){
+                      senddata();
+                    }
+                    else{
+                      res.send("data");
+                    }
+
+                    
                   }, function (err) {
                     console.log('Something went wrong!', err);
                   });
@@ -701,7 +715,6 @@ app.get('/secret', function (req, res) {
 
     };
     
-    console.log(data);
 
     //TO VIEW EVERY TRACKS SAVED
     // for (var index = 0; index < 3; index++) {
