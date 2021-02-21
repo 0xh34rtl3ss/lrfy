@@ -32,8 +32,10 @@ $(document).ready(function (){
 
         $('#ur-name').text(`Not bad, ${name}`);
         $('#ur-result').text(`Score: ${score}/10\nTime: ${finalTime} minutes`);
-   var twiiterimg = `pic.twitter.com/GOzFUTC7Rl`;
-    var link = `https://twitter.com/share?url=http://lrfy-beta.herokuapp.com&text=How%20well%20do%20you%20know%20your%20songs?%20I%20scored%20${score}/10%20${twiiterimg}%20&hashtags=lrfy`;
+
+   var text_twt = 
+   `How%20well%20do%20you%20know%20your%20Spotify%C2%AE%20musics%3F%20%0AI%20scored%20${score}%2F10%20and%20took%20only%20${str_pad_left(minutes,'0',2)}%3A${str_pad_left(seconds,'0',2)}%20minutes.%20%0AFind%20out%20now%20on%20%23lrfy%0A`
+    var link = `https://twitter.com/share?text=${text_twt}&url=http://lrfy-beta.herokuapp.com`;
 
 
     $('.share').append(`<a target="_blank" id="shr" href="${link}">Share to twitter</a> <br>`);

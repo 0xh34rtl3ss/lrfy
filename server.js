@@ -727,6 +727,7 @@ app.get('/secret', function (req, res) {
     // }
 
     // TO VIEW EACH ARRAYS
+    console.log(data)
     // console.log(data.USER.TOPSONGS[0]);
     // console.log(data.USER.TOPSONGS[1]);
     // console.log(data.USER.TOPSONGS[2]);
