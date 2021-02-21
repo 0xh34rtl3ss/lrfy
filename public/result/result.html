@@ -46,12 +46,18 @@
 
 
     <script>
-        var Background = "../img/lando.jpg";
+
+/*
+function filter (node) {
+    return (node.tagName !== 'i');
+}
+*/
+
 
         $('#save').click(function () {
             domtoimage.toBlob(document.getElementById('savethis'), {
+                   // filter: filter,
                     style: {
-                        backgroundImage: "url(" + Background + ")",
                         backgroundPosition: 'center',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
