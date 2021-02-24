@@ -303,7 +303,7 @@ app.get('/secret', function (req, res) {
         console.log('Something went wrong!', err);
       }).then(async function () {
 
-        var offset =  getRandomInt(0, 50);
+        var offset =  getRandomInt(0, 49);
         console.log("--------------------SHORT TERM--------------------  offset: "+offset);
         spotifyApi.getMyTopTracks({
             limit: 50,
@@ -423,7 +423,7 @@ app.get('/secret', function (req, res) {
           })
 
           .then(async function () {
-            var offset =  getRandomInt(0, 50);
+            var offset =  getRandomInt(0, 49);
             console.log("--------------------MEDIUM TERM--------------------  offset: "+offset);
             spotifyApi.getMyTopTracks({
                 limit: 50,
@@ -548,7 +548,7 @@ app.get('/secret', function (req, res) {
                 })
               /**************** LONG  */
               .then(async function () {
-                var offset =  getRandomInt(0, 50);
+                var offset =  getRandomInt(0, 49);
                 console.log("--------------------LONG TERM--------------------  offset: "+offset);
                 spotifyApi.getMyTopTracks({
                     limit: 50,
@@ -673,7 +673,9 @@ app.get('/secret', function (req, res) {
 
 
                     if(topsongs_s.length==20 && topsongs_m.length==20 && topsongs_l.length==20){
-                      console.log("all data sucessfully retrieved")
+                      console.log()
+                      console.log(`all data sucessfully retrieved for\nname: ${userid}\nimage: ${imgurl}`)
+                      console.log()
                       senddata();
                     }
                     else{
@@ -727,7 +729,6 @@ app.get('/secret', function (req, res) {
     // }
 
     // TO VIEW EACH ARRAYS
-    console.log(data)
     // console.log(data.USER.TOPSONGS[0]);
     // console.log(data.USER.TOPSONGS[1]);
     // console.log(data.USER.TOPSONGS[2]);

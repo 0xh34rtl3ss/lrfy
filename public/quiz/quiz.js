@@ -325,14 +325,12 @@ $(document).ready(function () {
 
 
     }
-
     /************ END OF BACKEND */
 
 
 
 
     /********* START OF FRONTEND */
-
     $('input[type="radio"]').click(function () {
 
         var userans = $('input[name="radio"]:checked').val();

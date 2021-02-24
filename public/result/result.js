@@ -50,6 +50,11 @@ https://lrfy-beta.herokuapp.com/`;
     $('.share').append(`<a target="_blank" href="whatsapp://send?text=${encodeURIComponent(text_ws)}">Share to WhatsApp</a> <br>`);
 
 
+    document.cookie = "score= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "name= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "time= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+
+
 
 
 
