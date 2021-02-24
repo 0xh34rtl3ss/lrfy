@@ -303,7 +303,7 @@ app.get('/secret', function (req, res) {
         console.log('Something went wrong!', err);
       }).then(async function () {
 
-        var offset =  getRandomInt(20, 30);
+        var offset =  getRandomInt(0, 50);
         console.log("--------------------SHORT TERM--------------------  offset: "+offset);
         spotifyApi.getMyTopTracks({
             limit: 50,
@@ -423,7 +423,7 @@ app.get('/secret', function (req, res) {
           })
 
           .then(async function () {
-            var offset =  getRandomInt(30, 45);
+            var offset =  getRandomInt(0, 50);
             console.log("--------------------MEDIUM TERM--------------------  offset: "+offset);
             spotifyApi.getMyTopTracks({
                 limit: 50,
@@ -548,7 +548,7 @@ app.get('/secret', function (req, res) {
                 })
               /**************** LONG  */
               .then(async function () {
-                var offset =  getRandomInt(25, 49);
+                var offset =  getRandomInt(0, 50);
                 console.log("--------------------LONG TERM--------------------  offset: "+offset);
                 spotifyApi.getMyTopTracks({
                     limit: 50,
