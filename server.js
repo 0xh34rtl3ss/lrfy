@@ -3,6 +3,7 @@ modules initialization
 */
 require('dotenv').config()
 const express = require('express');
+const cors = require('cors');
 var bodyParser = require('body-parser');
 music = require('musicmatch')({
   apikey: `${process.env.API_KEY}`
@@ -16,7 +17,6 @@ const {
 } = require('perf_hooks');
 const { SSL_OP_SINGLE_DH_USE } = require('constants');
 
-var userresult = [];
 
 var loggedin = false;
 const port = process.env.PORT || 5500; //allow environment to set their own port number or we assign it
@@ -54,6 +54,7 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(bodyParser.json());
+app.use(cors());
 
 
 
@@ -268,16 +269,8 @@ app.get('/secret', function (req, res) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-
-  /*
-  if( req.session.completed == undefined && req.session.authenticated == undefined && loggedin==true ){
-    console.log("current url1: "+ req.originalUrl);
-    return res.redirect('/quiz');
-    console.log("current url2: "+ req.originalUrl);
-  }
-*/
   if (debug == true && loggedin == true && req.session.authenticated == true && (req.session.completed == false || req.session.completed == undefined)) {
-    var t0 = performance.now()
+    var t0 = performance.now() //start counting time
 
 
 
