@@ -6,90 +6,27 @@ var time0;
 var currtime;
 var time1;
 
-//Define vars to hold time values
-let seconds = 0;
-let minutes = 0;
-
-
-//Define vars to hold "display" value
-let displaySeconds = 0;
-let displayMinutes = 0;
-
-
-//Define var to hold setInterval() function
-let interval = null;
-
-//Define var to hold stopwatch status
-let status = "stopped";
-
-
-
 
 
 $(document).ready(function () {
 
+    var totalSeconds = 0;
+    
 
-
-    //Stopwatch function (logic to determine when to increment next value, etc.)
-    function stopWatch() {
-
-        seconds++;
-
-        //Logic to determine when to increment next value
-        if (seconds / 60 === 1) {
-            seconds = 0;
-            minutes++;
-
-
-        }
-
-        //If seconds/minutes/hours are only one digit, add a leading 0 to the value
-        if (seconds < 10) {
-            displaySeconds = "0" + seconds.toString();
+    function setTime(){
+        ++totalSeconds;
+        $("#seconds").html(pad(totalSeconds%60));
+        $("#minutes").html(pad(parseInt(totalSeconds/60)) + " ");
+    }
+    function pad(val) {
+        var valString = val + "";
+        if (valString.length < 2) {
+            return "0" + valString;
         } else {
-            displaySeconds = seconds;
+            return valString;
         }
-
-        if (minutes < 10) {
-            displayMinutes = "0" + minutes.toString();
-        } else {
-            displayMinutes = minutes;
-        }
-
-
-        //Display updated time values to user
-        document.getElementById("display").innerHTML = displayMinutes + ":" + displaySeconds;
-
     }
 
-
-
-    function startStop() {
-
-        if (status === "stopped") {
-
-            //Start the stopwatch (by calling the setInterval() function)
-            interval = window.setInterval(stopWatch, 1000);
-            status = "started";
-
-        } else {
-
-            window.clearInterval(interval);
-            status = "stopped";
-
-        }
-
-    }
-
-    //Function to reset the stopwatch
-    function reset() {
-
-        window.clearInterval(interval);
-        seconds = 0;
-        minutes = 0;
-        document.getElementById("display").innerHTML = "00:00";
-
-    }
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -268,8 +205,8 @@ $(document).ready(function () {
         console.log("GET request to server, retrieving API");
         var xhr = $.ajax({
             type: 'GET',
-            //url: 'http://localhost:5500/secret',
-            url: 'https://lrfy-beta.herokuapp.com/secret',
+            url: 'http://localhost:5500/secret',
+            //url: 'https://lrfy-beta.herokuapp.com/secret',
 
             beforeSend: function () {
                 $('.loader').show();
@@ -280,9 +217,8 @@ $(document).ready(function () {
                 $('.content').show();
                 generateQuiz();
                 renderQuiz(userprogress);
-                reset();
                 time0 = performance.now();
-                startStop();
+                setInterval(setTime,1000);
 
 
             },
@@ -294,6 +230,7 @@ $(document).ready(function () {
                 } else {
                     console.log("data type: " + typeof (data));
                     console.log("API received!");
+                    console.log(data);
                     userdata = data; //copy received data to local var
                     userdata = JSON.parse(JSON.stringify(userdata));
 
@@ -341,7 +278,6 @@ $(document).ready(function () {
             userprogress++;
             renderQuiz(userprogress);
         } else {
-            reset();
             time1 = performance.now();
 
             document.cookie = `score=${usercorrect}; samesite=lax; path=/`;

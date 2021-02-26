@@ -1,24 +1,24 @@
 @font-face {
     font-family: Gotham;
-    src: url(../fonts/Gotham-Bold.otf);
+    src: url(../../public/fonts/Gotham-Bold.otf);
     font-weight: bold;
     font-style: normal;
 }
 @font-face {
     font-family: Gotham;
-    src: url(../fonts/GothamBook.ttf);
+    src: url(../../public/fonts/GothamBook.ttf);
     font-weight: normal;
     font-style: normal;
 }
 @font-face {
     font-family: Gotham;
-    src: url(../fonts/Gotham-Light.otf);
+    src: url(../../public/fonts/Gotham-Light.otf);
     font-weight: lighter;
     font-style: normal;
 }
 @font-face {
     font-family: Noto Sans;
-    src: url(../fonts/NotoSansSC-Bold.otf);
+    src: url(../../public/fonts/NotoSansSC-Bold.otf);
     font-weight: bold;
     font-style: normal;
 }
