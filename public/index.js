@@ -1,11 +1,18 @@
-const SpotifyWebApi = require('../');
+$(document).ready(function(){
 
-const spotifyApi = new SpotifyWebApi();
-spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS_TOKEN);
-
-(async () => {
-  const me = await spotifyApi.getMe();
-  console.log(me);
-})().catch(e => {
-  console.error(e);
+    let menuOpen = false;
+    $(".menu-btn").click(function(){
+        if(!menuOpen){
+            $(".menu-btn").addClass('open');
+            $(".navbar-drop").css("min-height","100%");
+            menuOpen=true;
+        }else{
+            $(".menu-btn").removeClass('open');
+            $(".navbar-drop").css("min-height","0%");
+            menuOpen=false;
+        }
+    });
+    $("#btn-findout").click(function(){
+        window.location.href="/login";   // link to spotify authorization
+    })
 });
