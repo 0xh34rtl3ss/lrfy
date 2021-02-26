@@ -16,12 +16,9 @@ const {
 } = require('perf_hooks');
 const { SSL_OP_SINGLE_DH_USE } = require('constants');
 
-var loggedin = false;
-var spotifydata = [];
-var sess;
-var completed = false;
+var userresult = [];
 
-var access_token1 = "";
+var loggedin = false;
 const port = process.env.PORT || 5500; //allow environment to set their own port number or we assign it
 
 //what user data we want to read
@@ -158,7 +155,6 @@ app.get('/callback', (req, res) => { //once it has been logged in, go to /callba
       const refresh_token = data.body['refresh_token'];
       const expires_in = data.body['expires_in'];
 
-      //access_token1 = data.body['access_token'];
 
       spotifyApi.setAccessToken(access_token); //set access token
       spotifyApi.setRefreshToken(refresh_token);
