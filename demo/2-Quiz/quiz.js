@@ -341,7 +341,7 @@ $(document).ready(function(){
     }
     function boxScatter(){
         
-        for(let x=1;x<=12;x++){
+        for(let x=1;x<=12;x++){ //nk tmbh pon boleh , sbb aku bagi 19 album arts
             var topRand = Math.floor(Math.random() * 100);
             var leftRand = Math.floor(Math.random() * 100);
             console.log(topRand);
